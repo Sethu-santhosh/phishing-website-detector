@@ -12,7 +12,7 @@ ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 if render_hostname:
     ALLOWED_HOSTS.append(render_hostname)
 
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = ["https://phishing-website-detector-9fh8.onrender.com",]
 if render_hostname:
     CSRF_TRUSTED_ORIGINS.append(f"https://{render_hostname}")
 
