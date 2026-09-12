@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block content %}<div class="card"><h2>My Detection History</h2>{% if checks %}<table><tr><th>URL</th><th>Result</th><th>Score</th><th>Date</th></tr>{% for c in checks %}<tr><td>{{c.url}}</td><td>{{c.result}}</td><td>{{c.score}}</td><td>{{c.checked_at}}</td></tr>{% endfor %}</table>{% else %}<p>No checks yet.</p>{% endif %}</div>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<div class="card"><h1>🔐 Phishing Website Detector</h1><p>Enter a URL to check for common phishing indicators.</p>
+<form method="post">{% csrf_token %}{{form.as_p}}<button type="submit">Check Website</button></form></div>
+{% if result %}<div class="card {% if result.label == 'Safe' %}safe{% elif result.label == 'Suspicious' %}suspicious{% else %}phishing{% endif %}">
+<h2>{{result.label}}</h2><p><b>URL:</b> {{result.url}}</p><p><b>Risk score:</b> {{result.score}} / 100</p>
+<h3>Why?</h3><ul>{% for r in result.reasons %}<li>{{r}}</li>{% endfor %}</ul>
+<p><small>This is an educational rule-based screening tool, not a guarantee that a website is safe.</small></p>
+</div>{% endif %}{% endblock %}

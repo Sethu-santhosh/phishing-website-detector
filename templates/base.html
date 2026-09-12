@@ -1,0 +1,9 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PhishGuard</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f4f7fb;color:#172033}nav{background:#172033;padding:16px}nav a{color:white;text-decoration:none;margin-right:18px}main{max-width:850px;margin:45px auto;padding:0 18px}.card{background:white;padding:28px;border-radius:14px;box-shadow:0 4px 18px #0001;margin-bottom:20px}input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd3df;border-radius:8px;margin:8px 0 16px}button{padding:12px 20px;border:0;border-radius:8px;background:#172033;color:white;cursor:pointer}.safe{border-left:6px solid #16834b}.suspicious{border-left:6px solid #d28a00}.phishing{border-left:6px solid #c53030}table{width:100%;border-collapse:collapse}td,th{padding:10px;border-bottom:1px solid #ddd;text-align:left}.errorlist{color:#c53030}
+</style></head><body>
+<nav><a href="/">PhishGuard</a><a href="/history/">History</a>{% if user.is_authenticated %}<a href="/logout/">Logout</a>{% else %}<a href="/login/">Login</a><a href="/register/">Register</a>{% endif %}</nav>
+<main>{% for message in messages %}<div class="card">{{message}}</div>{% endfor %}{% block content %}{% endblock %}</main>
+</body></html>
