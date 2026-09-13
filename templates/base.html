@@ -1,9 +1,243 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>PhishGuard</title>
+
 <style>
-body{font-family:Arial,sans-serif;margin:0;background:#f4f7fb;color:#172033}nav{background:#172033;padding:16px}nav a{color:white;text-decoration:none;margin-right:18px}main{max-width:850px;margin:45px auto;padding:0 18px}.card{background:white;padding:28px;border-radius:14px;box-shadow:0 4px 18px #0001;margin-bottom:20px}input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd3df;border-radius:8px;margin:8px 0 16px}button{padding:12px 20px;border:0;border-radius:8px;background:#172033;color:white;cursor:pointer}.safe{border-left:6px solid #16834b}.suspicious{border-left:6px solid #d28a00}.phishing{border-left:6px solid #c53030}table{width:100%;border-collapse:collapse}td,th{padding:10px;border-bottom:1px solid #ddd;text-align:left}.errorlist{color:#c53030}
-</style></head><body>
-<nav><a href="/">PhishGuard</a><a href="/history/">History</a>{% if user.is_authenticated %}<a href="/logout/">Logout</a>{% else %}<a href="/login/">Login</a><a href="/register/">Register</a>{% endif %}</nav>
-<main>{% for message in messages %}<div class="card">{{message}}</div>{% endfor %}{% block content %}{% endblock %}</main>
-</body></html>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+
+    background:
+        radial-gradient(circle at 10% 20%, #3159a8 0, transparent 30%),
+        radial-gradient(circle at 90% 10%, #7044a8 0, transparent 28%),
+        radial-gradient(circle at 50% 90%, #126b91 0, transparent 30%),
+        #07142d;
+
+    background-attachment: fixed;
+}
+
+/* Glass Navbar */
+nav {
+    margin: 18px;
+    padding: 15px 22px;
+
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 18px;
+
+    background: rgba(255,255,255,.10);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+.logo span {
+    color: #45b8ff;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+
+    transition: .25s ease;
+}
+
+nav a:hover {
+    background: rgba(255,255,255,.16);
+    transform: translateY(-2px);
+}
+
+nav a:active {
+    transform: scale(.92);
+}
+
+/* Main */
+main {
+    width: min(1100px, 92%);
+    margin: 35px auto;
+}
+
+/* General Glass Card */
+.card {
+    padding: 28px;
+    margin-bottom: 20px;
+
+    border-radius: 22px;
+
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.25);
+
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+
+    box-shadow: 0 15px 50px rgba(0,0,0,.20);
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 15px;
+
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.3);
+
+    background: rgba(255,255,255,.12);
+    color: white;
+
+    outline: none;
+    transition: .25s;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,.6);
+}
+
+input:focus {
+    border-color: #42a5ff;
+    box-shadow: 0 0 20px rgba(66,165,255,.25);
+}
+
+/* Buttons */
+button {
+    padding: 13px 22px;
+    border: 0;
+    border-radius: 12px;
+
+    color: white;
+    font-weight: bold;
+
+    background: linear-gradient(135deg,#1677ff,#8b5cf6);
+
+    cursor: pointer;
+
+    transition:
+        transform .18s ease,
+        box-shadow .25s ease;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(80,120,255,.45);
+}
+
+button:active {
+    transform: scale(.90);
+}
+
+/* Result colors */
+.safe {
+    border-left: 6px solid #22c55e;
+}
+
+.suspicious {
+    border-left: 6px solid #f59e0b;
+}
+
+.phishing {
+    border-left: 6px solid #ef4444;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td,
+th {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+    text-align: left;
+}
+
+.errorlist {
+    color: #ff6b6b;
+}
+
+/* Mobile */
+@media(max-width:700px) {
+
+    nav {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .logo {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    nav a {
+        padding: 8px 10px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🛡️ Phish<span>Guard</span>
+    </div>
+
+    <a href="/">🏠 Home</a>
+
+    <a href="/history/">📜 History</a>
+
+    {% if user.is_authenticated %}
+
+        <a href="/logout/">🚪 Logout</a>
+
+    {% else %}
+
+        <a href="/login/">🔑 Login</a>
+
+        <a href="/register/">👤 Register</a>
+
+    {% endif %}
+
+</nav>
+
+
+<main>
+
+    {% for message in messages %}
+
+        <div class="card">
+            {{ message }}
+        </div>
+
+    {% endfor %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+</body>
+</html>
