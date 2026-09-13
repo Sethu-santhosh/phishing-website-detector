@@ -3,6 +3,11 @@
 {% block content %}
 
 <style>
+
+    /* ================================
+       HERO
+    ================================= */
+
     .hero {
         text-align: center;
         padding: 55px 20px 35px;
@@ -13,11 +18,14 @@
         height: 72px;
         margin: 0 auto 22px;
         border-radius: 22px;
+
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: rgba(255,255,255,0.08);
         border: 1px solid rgba(255,255,255,0.16);
+
         box-shadow: 0 15px 45px rgba(0,0,0,0.25);
     }
 
@@ -31,7 +39,13 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(145deg, #ffffff, #8aa9ff);
+
+        background: linear-gradient(
+            145deg,
+            #ffffff,
+            #8aa9ff
+        );
+
         clip-path: polygon(
             50% 0%,
             92% 15%,
@@ -46,36 +60,58 @@
 
     .shield-icon::after {
         content: "";
+
         position: absolute;
+
         width: 9px;
         height: 15px;
+
         left: 10px;
         top: 7px;
+
         border-right: 3px solid #172554;
         border-bottom: 3px solid #172554;
+
         transform: rotate(45deg);
     }
 
     .hero h1 {
         margin: 0;
+
         font-size: clamp(32px, 5vw, 52px);
+
         font-weight: 800;
+
         letter-spacing: -1.5px;
     }
 
     .hero h1 span {
-        background: linear-gradient(90deg, #8fb3ff, #c5d5ff);
+        background: linear-gradient(
+            90deg,
+            #8fb3ff,
+            #c5d5ff
+        );
+
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
     .hero p {
         max-width: 700px;
+
         margin: 16px auto 0;
+
         line-height: 1.7;
+
         opacity: 0.68;
+
         font-size: 16px;
     }
+
+
+    /* ================================
+       CHECKER
+    ================================= */
 
     .checker-card {
         max-width: 900px;
@@ -95,23 +131,29 @@
 
     .check-button {
         min-width: 150px;
+
         position: relative;
         overflow: hidden;
     }
 
     .check-button::after {
         content: "";
+
         position: absolute;
+
         top: 0;
         left: -100%;
+
         width: 60%;
         height: 100%;
+
         background: linear-gradient(
             90deg,
             transparent,
             rgba(255,255,255,0.22),
             transparent
         );
+
         transform: skewX(-20deg);
     }
 
@@ -120,6 +162,7 @@
     }
 
     @keyframes buttonShine {
+
         from {
             left: -100%;
         }
@@ -127,40 +170,58 @@
         to {
             left: 140%;
         }
+
     }
 
-    /* Loading */
+
+    /* ================================
+       MAIN LOADING
+    ================================= */
 
     .loading {
         display: none;
+
         text-align: center;
+
         padding: 30px 10px;
     }
 
     .loader {
         width: 38px;
         height: 38px;
+
         margin: 0 auto 14px;
+
         border-radius: 50%;
+
         border: 3px solid rgba(255,255,255,0.15);
+
         border-top-color: #9bb7ff;
+
         animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
+
         to {
             transform: rotate(360deg);
         }
+
     }
 
-    /* Result */
+
+    /* ================================
+       RESULT
+    ================================= */
 
     .result-card {
         margin-top: 28px;
+
         animation: resultAppear 0.55s ease;
     }
 
     @keyframes resultAppear {
+
         from {
             opacity: 0;
             transform: translateY(20px) scale(0.98);
@@ -170,13 +231,18 @@
             opacity: 1;
             transform: translateY(0) scale(1);
         }
+
     }
 
     .result-title {
         display: flex;
+
         align-items: center;
+
         justify-content: space-between;
+
         gap: 15px;
+
         margin-bottom: 20px;
     }
 
@@ -186,38 +252,60 @@
 
     .status-badge {
         padding: 8px 15px;
+
         border-radius: 999px;
+
         font-size: 13px;
+
         font-weight: 700;
+
         background: rgba(255,255,255,0.08);
+
         border: 1px solid rgba(255,255,255,0.14);
     }
 
+
+    /* ================================
+       INFORMATION
+    ================================= */
+
     .result-info {
         display: grid;
+
         grid-template-columns: repeat(3, 1fr);
+
         gap: 14px;
+
         margin-bottom: 25px;
     }
 
     .info-box {
         padding: 18px;
+
         border-radius: 16px;
+
         background: rgba(255,255,255,0.045);
+
         border: 1px solid rgba(255,255,255,0.09);
+
         min-width: 0;
     }
 
     .info-box small {
         display: block;
+
         margin-bottom: 8px;
+
         opacity: 0.55;
+
         font-size: 12px;
     }
 
     .info-box strong {
         display: block;
+
         word-break: break-word;
+
         line-height: 1.5;
     }
 
@@ -231,11 +319,16 @@
 
     .registration-date {
         margin-top: 7px;
+
         font-size: 12px;
+
         opacity: 0.58;
     }
 
-    /* Detection reasons */
+
+    /* ================================
+       DETECTION DETAILS
+    ================================= */
 
     .reasons {
         margin-top: 22px;
@@ -247,20 +340,30 @@
 
     .reason-list {
         margin: 0;
+
         padding: 0;
+
         list-style: none;
     }
 
     .reason-list li {
         padding: 13px 15px;
+
         margin-bottom: 8px;
+
         border-radius: 12px;
+
         background: rgba(255,255,255,0.04);
+
         border: 1px solid rgba(255,255,255,0.07);
+
         line-height: 1.5;
     }
 
-    /* Website Preview */
+
+    /* ================================
+       WEBSITE PREVIEW
+    ================================= */
 
     .website-preview {
         margin-top: 30px;
@@ -272,166 +375,261 @@
 
     .preview-frame {
         width: 100%;
+
         min-height: 220px;
+
         overflow: hidden;
+
         position: relative;
+
         border-radius: 18px;
+
         background: rgba(255,255,255,0.04);
+
         border: 1px solid rgba(255,255,255,0.12);
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
     }
 
     .preview-frame img {
         display: block;
+
         width: 100%;
+
         height: auto;
+
         max-height: 600px;
+
         object-fit: cover;
+
         object-position: top;
     }
 
-    /* Preview loading */
+
+    /* ================================
+       PREVIEW LOADING
+    ================================= */
 
     .preview-loading {
         position: absolute;
+
         inset: 0;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         flex-direction: column;
+
         gap: 12px;
-        background: rgba(10,18,40,0.88);
-        z-index: 2;
+
+        background: rgba(10,18,40,0.90);
+
+        z-index: 3;
     }
 
     .preview-loader {
         width: 32px;
         height: 32px;
+
         border-radius: 50%;
+
         border: 3px solid rgba(255,255,255,0.15);
+
         border-top-color: #9bb7ff;
+
         animation: spin 0.8s linear infinite;
     }
 
     .preview-loading-text {
         font-size: 13px;
+
         opacity: 0.65;
     }
 
-    /* Preview blocked/error */
+
+    /* ================================
+       PREVIEW ERROR
+    ================================= */
 
     .preview-error {
         display: none;
+
         width: 100%;
+
         padding: 55px 20px;
+
         text-align: center;
     }
 
     .preview-error-icon {
         width: 48px;
         height: 48px;
+
         margin: 0 auto 15px;
+
         border-radius: 15px;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         background: rgba(255,255,255,0.07);
+
         border: 1px solid rgba(255,255,255,0.12);
     }
 
     .preview-error-icon::before {
         content: "!";
+
         width: 22px;
         height: 22px;
+
         border: 2px solid rgba(255,255,255,0.7);
+
         border-radius: 50%;
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
+
         font-weight: 700;
     }
 
     .preview-error h4 {
         margin: 0 0 8px;
+
         font-size: 16px;
     }
 
     .preview-error p {
-        max-width: 480px;
+        max-width: 500px;
+
         margin: 0 auto;
+
         font-size: 12px;
+
         line-height: 1.6;
+
         opacity: 0.55;
     }
 
     .preview-note {
         margin: 10px 0 0;
+
         font-size: 12px;
+
         opacity: 0.5;
+
         line-height: 1.5;
     }
 
-    /* Security note */
+
+    /* ================================
+       SECURITY NOTE
+    ================================= */
 
     .security-note {
         margin-top: 24px;
+
         padding: 15px;
+
         border-radius: 14px;
+
         background: rgba(255,255,255,0.035);
+
         border: 1px solid rgba(255,255,255,0.07);
+
         font-size: 12px;
+
         line-height: 1.6;
+
         opacity: 0.7;
     }
 
-    /* Features */
+
+    /* ================================
+       FEATURES
+    ================================= */
 
     .features {
         max-width: 900px;
+
         margin: 28px auto 0;
+
         display: grid;
+
         grid-template-columns: repeat(3, 1fr);
+
         gap: 14px;
     }
 
     .feature {
         padding: 22px;
+
         text-align: center;
     }
 
     .feature-icon {
         width: 42px;
         height: 42px;
+
         margin: 0 auto 12px;
+
         border-radius: 13px;
+
         background: rgba(255,255,255,0.07);
+
         border: 1px solid rgba(255,255,255,0.12);
+
         display: flex;
+
         align-items: center;
+
         justify-content: center;
     }
 
     .feature-icon span {
         width: 17px;
         height: 17px;
+
         display: block;
+
         border: 2px solid rgba(255,255,255,0.8);
+
         border-radius: 5px;
     }
 
     .feature h3 {
         margin: 0 0 7px;
+
         font-size: 15px;
     }
 
     .feature p {
         margin: 0;
+
         font-size: 12px;
+
         line-height: 1.5;
+
         opacity: 0.55;
     }
+
+
+    /* ================================
+       MOBILE
+    ================================= */
 
     @media (max-width: 750px) {
 
@@ -453,9 +651,12 @@
 
         .result-title {
             align-items: flex-start;
+
             flex-direction: column;
         }
+
     }
+
 
     @media (max-width: 600px) {
 
@@ -473,6 +674,7 @@
 
         .preview-frame {
             min-height: 180px;
+
             border-radius: 13px;
         }
 
@@ -483,16 +685,22 @@
         .preview-note {
             font-size: 11px;
         }
+
     }
+
 </style>
 
 
-<!-- HERO -->
+<!-- ================================
+     HERO
+================================= -->
 
 <section class="hero">
 
     <div class="hero-icon">
+
         <div class="shield-icon"></div>
+
     </div>
 
     <h1>
@@ -508,15 +716,20 @@
 </section>
 
 
-<!-- URL CHECKER -->
+<!-- ================================
+     CHECKER
+================================= -->
 
 <div class="card checker-card">
 
-    <h2>Check Website</h2>
+    <h2>
+        Check Website
+    </h2>
 
     <p style="opacity:0.6; margin-top:6px;">
         Enter a website URL below to analyze it.
     </p>
+
 
     <form
         method="POST"
@@ -528,7 +741,10 @@
 
         {{ form.url }}
 
-        <button type="submit" class="check-button">
+        <button
+            type="submit"
+            class="check-button"
+        >
             Check Website
         </button>
 
@@ -546,11 +762,16 @@
 
     <!-- ANALYSIS LOADING -->
 
-    <div id="loading" class="loading">
+    <div
+        id="loading"
+        class="loading"
+    >
 
         <div class="loader"></div>
 
-        <strong>Analyzing website...</strong>
+        <strong>
+            Analyzing website...
+        </strong>
 
         <p style="opacity:0.55; font-size:12px;">
             Checking URL security indicators and domain information.
@@ -561,15 +782,20 @@
 </div>
 
 
-<!-- RESULT -->
+<!-- ================================
+     RESULT
+================================= -->
 
 {% if result %}
 
 <div class="card result-card">
 
+
     <div class="result-title">
 
-        <h2>Analysis Result</h2>
+        <h2>
+            Analysis Result
+        </h2>
 
         <div class="status-badge">
             {{ result.label }}
@@ -578,13 +804,16 @@
     </div>
 
 
-    <!-- BASIC INFORMATION -->
+    <!-- RESULT INFORMATION -->
 
     <div class="result-info">
 
+
         <div class="info-box">
 
-            <small>Website URL</small>
+            <small>
+                Website URL
+            </small>
 
             <strong>
                 {{ result.url }}
@@ -595,7 +824,9 @@
 
         <div class="info-box">
 
-            <small>Risk Score</small>
+            <small>
+                Risk Score
+            </small>
 
             <strong class="score">
                 {{ result.score }} / 100
@@ -606,7 +837,10 @@
 
         <div class="info-box age-box">
 
-            <small>Website Age</small>
+            <small>
+                Website Age
+            </small>
+
 
             {% if result.age %}
 
@@ -626,7 +860,8 @@
             {% if result.registration_date %}
 
                 <div class="registration-date">
-                    Registered on: {{ result.registration_date }}
+                    Registered on:
+                    {{ result.registration_date }}
                 </div>
 
             {% else %}
@@ -639,6 +874,7 @@
 
         </div>
 
+
     </div>
 
 
@@ -648,7 +884,9 @@
 
     <div class="reasons">
 
-        <h3>Detection Details</h3>
+        <h3>
+            Detection Details
+        </h3>
 
         <ul class="reason-list">
 
@@ -667,15 +905,21 @@
     {% endif %}
 
 
-    <!-- WEBSITE PREVIEW -->
+    <!-- ================================
+         WEBSITE PREVIEW
+    ================================= -->
 
     <div class="website-preview">
 
-        <h3>Website Preview</h3>
+        <h3>
+            Website Preview
+        </h3>
+
 
         <div class="preview-frame">
 
-            <!-- Preview loading screen -->
+
+            <!-- PREVIEW LOADING -->
 
             <div
                 id="previewLoading"
@@ -691,7 +935,7 @@
             </div>
 
 
-            <!-- Screenshot -->
+            <!-- WEBSITE SCREENSHOT -->
 
             <img
                 id="websitePreview"
@@ -704,7 +948,7 @@
             >
 
 
-            <!-- Error / Cloudflare message -->
+            <!-- PREVIEW ERROR -->
 
             <div
                 id="previewError"
@@ -713,26 +957,26 @@
 
                 <div class="preview-error-icon"></div>
 
-                <h4>
+                <h4 id="previewErrorTitle">
                     Preview unavailable
                 </h4>
 
-                <p>
-                    This website may be protected by Cloudflare,
-                    bot verification, login protection, or another
-                    security system that prevents the preview service
-                    from displaying the original webpage.
+                <p id="previewErrorText">
+                    The website preview could not be displayed.
                 </p>
 
             </div>
+
 
         </div>
 
 
         <p class="preview-note">
+
             The preview is generated by a third-party screenshot service.
             Your Django application does not directly open or execute
             the submitted website.
+
         </p>
 
     </div>
@@ -742,21 +986,28 @@
 
     <div class="security-note">
 
-        <strong>Security note:</strong>
+        <strong>
+            Security note:
+        </strong>
 
         The phishing detection system uses URL-based analysis.
-        The visual preview is separate from your phishing detection rules.
+        The visual preview is completely separate from your phishing
+        detection rules.
 
     </div>
+
 
 </div>
 
 {% endif %}
 
 
-<!-- FEATURES -->
+<!-- ================================
+     FEATURES
+================================= -->
 
 <div class="features">
+
 
     <div class="card feature">
 
@@ -803,71 +1054,352 @@
         </h3>
 
         <p>
-            Shows a screenshot of the submitted webpage.
+            Shows a screenshot when the website allows the preview service.
         </p>
 
     </div>
 
+
 </div>
+
+
+<!-- ================================
+     TESSERACT OCR
+================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 
 <script>
 
-/* Main analysis loading */
+    /* =================================
+       MAIN ANALYSIS LOADING
+    ================================= */
 
-function showLoading() {
+    function showLoading() {
 
-    const loading = document.getElementById("loading");
+        const loading =
+            document.getElementById("loading");
 
-    if (loading) {
-        loading.style.display = "block";
+        if (loading) {
+
+            loading.style.display = "block";
+
+        }
+
     }
 
-}
+
+    /* =================================
+       PREVIEW LOADED
+    ================================= */
+
+    function previewLoaded() {
+
+        const loading =
+            document.getElementById("previewLoading");
+
+        if (loading) {
+
+            loading.style.display = "none";
+
+        }
 
 
-/* Preview loaded successfully */
+        /*
+         * Give the browser a moment to make sure
+         * the screenshot is completely available.
+         */
 
-function previewLoaded() {
+        setTimeout(function() {
 
-    const loading =
-        document.getElementById("previewLoading");
+            detectSecurityChallenge();
 
-    if (loading) {
-        loading.style.display = "none";
+        }, 500);
+
     }
 
-}
+
+    /* =================================
+       PREVIEW FAILED
+    ================================= */
+
+    function previewFailed() {
+
+        const loading =
+            document.getElementById("previewLoading");
+
+        const image =
+            document.getElementById("websitePreview");
+
+        const error =
+            document.getElementById("previewError");
+
+        const title =
+            document.getElementById("previewErrorTitle");
+
+        const text =
+            document.getElementById("previewErrorText");
 
 
-/* Preview failed */
+        if (loading) {
 
-function previewFailed() {
+            loading.style.display = "none";
 
-    const loading =
-        document.getElementById("previewLoading");
-
-    const image =
-        document.getElementById("websitePreview");
-
-    const error =
-        document.getElementById("previewError");
+        }
 
 
-    if (loading) {
-        loading.style.display = "none";
+        if (image) {
+
+            image.style.display = "none";
+
+        }
+
+
+        if (title) {
+
+            title.textContent =
+                "Preview unavailable";
+
+        }
+
+
+        if (text) {
+
+            text.textContent =
+                "The screenshot service could not capture this website.";
+
+        }
+
+
+        if (error) {
+
+            error.style.display = "block";
+
+        }
+
     }
 
-    if (image) {
-        image.style.display = "none";
-    }
 
-    if (error) {
-        error.style.display = "block";
-    }
+    /* =================================
+       DETECT CLOUDFLARE / BOT CHECK
+    ================================= */
 
-}
+    async function detectSecurityChallenge() {
+
+        const image =
+            document.getElementById("websitePreview");
+
+        const loading =
+            document.getElementById("previewLoading");
+
+        const error =
+            document.getElementById("previewError");
+
+        const title =
+            document.getElementById("previewErrorTitle");
+
+        const text =
+            document.getElementById("previewErrorText");
+
+
+        if (!image) {
+
+            return;
+
+        }
+
+
+        /*
+         * Show a small loading overlay while
+         * OCR checks the screenshot.
+         */
+
+        if (loading) {
+
+            loading.style.display = "flex";
+
+        }
+
+
+        if (loading) {
+
+            const loadingText =
+                loading.querySelector(
+                    ".preview-loading-text"
+                );
+
+            if (loadingText) {
+
+                loadingText.textContent =
+                    "Checking preview...";
+
+            }
+
+        }
+
+
+        try {
+
+            const result =
+                await Tesseract.recognize(
+                    image,
+                    "eng"
+                );
+
+
+            const detectedText =
+                result.data.text
+                    .toLowerCase()
+                    .replace(/\s+/g, " ");
+
+
+            console.log(
+                "Preview OCR:",
+                detectedText
+            );
+
+
+            /*
+             * Common security/challenge words.
+             */
+
+            const securityWords = [
+
+                "cloudflare",
+
+                "performing security verification",
+
+                "security verification",
+
+                "verifying",
+
+                "verify you are human",
+
+                "verify you are not a bot",
+
+                "checking your browser",
+
+                "checking your browser before accessing",
+
+                "just a moment",
+
+                "attention required",
+
+                "enable javascript and cookies",
+
+                "bot verification",
+
+                "security check"
+
+            ];
+
+
+            let blocked = false;
+
+
+            for (
+                let i = 0;
+                i < securityWords.length;
+                i++
+            ) {
+
+                if (
+                    detectedText.includes(
+                        securityWords[i]
+                    )
+                ) {
+
+                    blocked = true;
+
+                    break;
+
+                }
+
+            }
+
+
+            if (blocked) {
+
+                /*
+                 * Hide the Cloudflare/security
+                 * challenge screenshot.
+                 */
+
+                image.style.display = "none";
+
+
+                if (loading) {
+
+                    loading.style.display = "none";
+
+                }
+
+
+                if (title) {
+
+                    title.textContent =
+                        "Preview blocked by website security";
+
+                }
+
+
+                if (text) {
+
+                    text.textContent =
+                        "This website is protected by Cloudflare or another security verification system. The original webpage screenshot is not available.";
+
+                }
+
+
+                if (error) {
+
+                    error.style.display = "block";
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+             * Normal screenshot.
+             */
+
+            if (loading) {
+
+                loading.style.display = "none";
+
+            }
+
+        }
+
+        catch (ocrError) {
+
+            /*
+             * If OCR fails, do not break the website.
+             * Keep the screenshot visible.
+             */
+
+            console.log(
+                "Preview OCR unavailable:",
+                ocrError
+            );
+
+
+            if (loading) {
+
+                loading.style.display = "none";
+
+            }
+
+        }
+
+    }
 
 </script>
+
 
 {% endblock %}
