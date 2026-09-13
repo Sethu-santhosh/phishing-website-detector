@@ -1,8 +1,424 @@
-{% extends "base.html" %}{% block content %}
-<div class="card"><h1>🔐 Phishing Website Detector</h1><p>Enter a URL to check for common phishing indicators.</p>
-<form method="post">{% csrf_token %}{{form.as_p}}<button type="submit">Check Website</button></form></div>
-{% if result %}<div class="card {% if result.label == 'Safe' %}safe{% elif result.label == 'Suspicious' %}suspicious{% else %}phishing{% endif %}">
-<h2>{{result.label}}</h2><p><b>URL:</b> {{result.url}}</p><p><b>Risk score:</b> {{result.score}} / 100</p>
-<h3>Why?</h3><ul>{% for r in result.reasons %}<li>{{r}}</li>{% endfor %}</ul>
-<p><small>This is an educational rule-based screening tool, not a guarantee that a website is safe.</small></p>
-</div>{% endif %}{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* ===== Liquid Glass Page ===== */
+.glass-page {
+    min-height: 75vh;
+    padding: 30px 0;
+}
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding: 45px;
+    border-radius: 28px;
+    background: linear-gradient(135deg,
+        rgba(255,255,255,0.22),
+        rgba(255,255,255,0.08));
+    border: 1px solid rgba(255,255,255,0.35);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 20px 60px rgba(31,38,135,0.25);
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: rgba(80,160,255,0.25);
+    border-radius: 50%;
+    filter: blur(70px);
+    top: -120px;
+    right: -80px;
+}
+
+.hero h1 {
+    position: relative;
+    font-size: 42px;
+    margin: 0 0 10px;
+}
+
+.hero h1 span {
+    background: linear-gradient(90deg,#2196f3,#9c6cff,#00d4ff);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.subtitle {
+    position: relative;
+    font-size: 17px;
+    opacity: .8;
+    margin-bottom: 30px;
+}
+
+/* ===== Scanner ===== */
+.scanner {
+    position: relative;
+    z-index: 2;
+    padding: 10px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.3);
+    display: flex;
+    gap: 10px;
+}
+
+.scanner input {
+    flex: 1;
+    margin: 0;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.35);
+    background: rgba(255,255,255,.12);
+    color: inherit;
+    outline: none;
+    font-size: 15px;
+}
+
+.scan-btn {
+    border-radius: 12px;
+    padding: 0 25px;
+    background: linear-gradient(135deg,#1677ff,#8b5cf6);
+    box-shadow: 0 8px 25px rgba(60,100,255,.35);
+    transition: all .25s ease;
+}
+
+.scan-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 35px rgba(60,100,255,.55);
+}
+
+.scan-btn:active {
+    transform: scale(.92);
+}
+
+/* ===== Feature Cards ===== */
+.features {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+    margin-top: 22px;
+}
+
+.feature {
+    padding: 22px;
+    border-radius: 20px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.25);
+    backdrop-filter: blur(20px);
+    transition: .3s;
+}
+
+.feature:hover {
+    transform: translateY(-6px);
+    background: rgba(255,255,255,.16);
+}
+
+.feature-icon {
+    font-size: 30px;
+}
+
+.feature h3 {
+    margin: 10px 0 5px;
+}
+
+.feature p {
+    margin: 0;
+    opacity: .7;
+}
+
+/* ===== Loading ===== */
+.loading {
+    display: none;
+    text-align: center;
+    padding: 35px;
+    margin-top: 22px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.3);
+    backdrop-filter: blur(20px);
+}
+
+.loader {
+    width: 55px;
+    height: 55px;
+    margin: auto;
+    border: 5px solid rgba(255,255,255,.2);
+    border-top: 5px solid #55aaff;
+    border-right: 5px solid #9c6cff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading h2 {
+    margin-bottom: 5px;
+}
+
+.loading-text {
+    opacity: .7;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== Result ===== */
+.result-card {
+    margin-top: 22px;
+    padding: 30px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.3);
+    backdrop-filter: blur(25px);
+    animation: resultIn .5s ease;
+}
+
+@keyframes resultIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.result-safe {
+    border-left: 6px solid #22c55e;
+}
+
+.result-suspicious {
+    border-left: 6px solid #f59e0b;
+}
+
+.result-phishing {
+    border-left: 6px solid #ef4444;
+}
+
+.result-title {
+    font-size: 30px;
+    margin-top: 0;
+}
+
+.score {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.score-bar {
+    height: 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,.15);
+    overflow: hidden;
+    margin: 12px 0 22px;
+}
+
+.score-fill {
+    height: 100%;
+    width: {{ result.score|default:0 }}%;
+    background: linear-gradient(90deg,#22c55e,#f59e0b,#ef4444);
+    border-radius: 20px;
+    transition: width 1s ease;
+}
+
+.reasons {
+    padding-left: 20px;
+}
+
+.reasons li {
+    margin: 8px 0;
+}
+
+/* ===== Mobile ===== */
+@media(max-width:700px) {
+    .hero {
+        padding: 25px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .scanner {
+        flex-direction: column;
+    }
+
+    .scan-btn {
+        padding: 15px;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+<div class="glass-page">
+
+    <!-- Hero -->
+    <section class="hero">
+
+        <h1>🛡️ Phish<span>Guard</span></h1>
+
+        <p class="subtitle">
+            Detect phishing websites before they become a threat.
+            Check a URL and discover its security risk instantly.
+        </p>
+
+        <!-- URL Scanner -->
+        <form method="post" id="scanForm">
+            {% csrf_token %}
+
+            <div class="scanner">
+                {{ form.url }}
+
+                <button type="submit" class="scan-btn" id="scanButton">
+                    🔍 Check Website
+                </button>
+            </div>
+        </form>
+
+    </section>
+
+
+    <!-- Loading Animation -->
+    <div class="loading" id="loadingBox">
+
+        <div class="loader"></div>
+
+        <h2>🔎 Scanning Website...</h2>
+
+        <p class="loading-text">
+            Checking URL security indicators. Please wait...
+        </p>
+
+    </div>
+
+
+    <!-- Features -->
+    <div class="features">
+
+        <div class="feature">
+            <div class="feature-icon">🔐</div>
+            <h3>HTTPS Check</h3>
+            <p>Checks whether the website uses a secure connection.</p>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon">🌐</div>
+            <h3>Domain Analysis</h3>
+            <p>Looks for suspicious domain and URL patterns.</p>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Instant Detection</h3>
+            <p>Get a risk score and explanation within seconds.</p>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon">🔗</div>
+            <h3>Short URL Detection</h3>
+            <p>Identifies commonly used shortened URL patterns.</p>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <h3>Risk Score</h3>
+            <p>See the website risk level from 0 to 100.</p>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon">📝</div>
+            <h3>Detailed Reasons</h3>
+            <p>Understand why a website was marked suspicious.</p>
+        </div>
+
+    </div>
+
+
+    <!-- Result -->
+    {% if result %}
+
+    <div class="result-card
+        {% if result.label == 'Safe' %}
+            result-safe
+        {% elif result.label == 'Suspicious' %}
+            result-suspicious
+        {% else %}
+            result-phishing
+        {% endif %}">
+
+        {% if result.label == "Safe" %}
+            <h2 class="result-title">🟢 Website Looks Safe</h2>
+        {% elif result.label == "Suspicious" %}
+            <h2 class="result-title">🟠 Suspicious Website</h2>
+        {% else %}
+            <h2 class="result-title">🔴 Phishing Website Detected</h2>
+        {% endif %}
+
+        <p>
+            <strong>URL:</strong> {{ result.url }}
+        </p>
+
+        <p class="score">
+            Risk Score: {{ result.score }} / 100
+        </p>
+
+        <div class="score-bar">
+            <div class="score-fill"></div>
+        </div>
+
+        <h3>🔎 Why was it classified this way?</h3>
+
+        <ul class="reasons">
+            {% for r in result.reasons %}
+                <li>{{ r }}</li>
+            {% endfor %}
+        </ul>
+
+        <p>
+            <small>
+                ⚠️ This is an educational rule-based screening tool.
+                It does not guarantee that a website is safe.
+            </small>
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<script>
+const scanForm = document.getElementById("scanForm");
+const loadingBox = document.getElementById("loadingBox");
+const scanButton = document.getElementById("scanButton");
+
+scanForm.addEventListener("submit", function() {
+
+    // Show loading animation
+    loadingBox.style.display = "block";
+
+    // Change button text
+    scanButton.innerHTML = "⏳ Scanning...";
+
+    // Prevent double clicking
+    scanButton.disabled = true;
+
+    // Smooth click animation
+    scanButton.style.transform = "scale(0.94)";
+
+    setTimeout(function() {
+        scanButton.style.transform = "scale(1)";
+    }, 150);
+});
+</script>
+
+{% endblock %}
