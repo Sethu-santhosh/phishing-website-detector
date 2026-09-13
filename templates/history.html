@@ -1,1 +1,508 @@
-{% extends "base.html" %}{% block content %}<div class="card"><h2>My Detection History</h2>{% if checks %}<table><tr><th>URL</th><th>Result</th><th>Score</th><th>Date</th></tr>{% for c in checks %}<tr><td>{{c.url}}</td><td>{{c.result}}</td><td>{{c.score}}</td><td>{{c.checked_at}}</td></tr>{% endfor %}</table>{% else %}<p>No checks yet.</p>{% endif %}</div>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .history-wrapper {
+        width: 100%;
+    }
+
+    .history-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .history-header h1 {
+        margin: 0 0 10px;
+        font-size: 32px;
+    }
+
+    .history-header p {
+        margin: 0;
+        opacity: 0.7;
+    }
+
+    /* Desktop table */
+    .history-table-container {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 650px;
+    }
+
+    .history-table th {
+        padding: 17px 15px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .history-table td {
+        padding: 16px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .history-table tr {
+        transition: background 0.2s ease;
+    }
+
+    .history-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .url-cell {
+        max-width: 300px;
+        word-break: break-word;
+        line-height: 1.5;
+    }
+
+    /* Result badges */
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 13px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .safe {
+        border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .suspicious {
+        border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .phishing {
+        border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .score {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .date-cell {
+        white-space: nowrap;
+        opacity: 0.8;
+    }
+
+    /* Empty history */
+    .empty-history {
+        text-align: center;
+        padding: 55px 25px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+    .empty-icon {
+        width: 65px;
+        height: 65px;
+        margin: 0 auto 18px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .empty-icon::before {
+        content: "";
+        width: 25px;
+        height: 29px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        display: block;
+    }
+
+    .empty-history h2 {
+        margin: 0 0 10px;
+    }
+
+    .empty-history p {
+        margin: 0;
+        opacity: 0.7;
+    }
+
+    /* Mobile cards */
+    .mobile-history {
+        display: none;
+    }
+
+    .history-card {
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .history-card:active {
+        transform: scale(0.98);
+    }
+
+    .history-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .history-number {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        flex-shrink: 0;
+    }
+
+    .mobile-url {
+        margin-bottom: 18px;
+    }
+
+    .mobile-url-label {
+        font-size: 12px;
+        opacity: 0.6;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .mobile-url-value {
+        font-size: 15px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .mobile-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .mobile-info-box {
+        padding: 13px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mobile-info-label {
+        display: block;
+        font-size: 11px;
+        opacity: 0.6;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .mobile-info-value {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* Animation */
+    .history-card,
+    .history-table-container,
+    .empty-history {
+        animation: fadeUp 0.45s ease both;
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Tablet */
+    @media (max-width: 800px) {
+        .history-header h1 {
+            font-size: 28px;
+        }
+
+        .history-table {
+            min-width: 600px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+
+        .history-header {
+            margin-bottom: 22px;
+        }
+
+        .history-header h1 {
+            font-size: 25px;
+        }
+
+        .history-header p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .history-table-container {
+            display: none;
+        }
+
+        .mobile-history {
+            display: block;
+        }
+
+        .history-card {
+            padding: 17px;
+        }
+
+        .history-card-top {
+            margin-bottom: 14px;
+        }
+
+        .result-badge {
+            padding: 6px 11px;
+            font-size: 12px;
+        }
+
+        .mobile-url-value {
+            font-size: 14px;
+        }
+
+        .mobile-info {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .mobile-info-box {
+            padding: 11px;
+        }
+    }
+
+    /* Very small phones */
+    @media (max-width: 380px) {
+
+        .history-header h1 {
+            font-size: 23px;
+        }
+
+        .history-card {
+            padding: 15px;
+        }
+
+        .mobile-info {
+            grid-template-columns: 1fr;
+        }
+
+        .history-number {
+            width: 30px;
+            height: 30px;
+        }
+    }
+</style>
+
+
+<div class="history-wrapper">
+
+    <div class="history-header">
+        <h1>Check History</h1>
+        <p>View your previously analyzed website URLs and results.</p>
+    </div>
+
+
+    {% if checks %}
+
+        <!-- DESKTOP TABLE -->
+
+        <div class="history-table-container">
+
+            <table class="history-table">
+
+                <thead>
+                    <tr>
+                        <th>Website URL</th>
+                        <th>Risk Score</th>
+                        <th>Result</th>
+                        <th>Checked At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for check in checks %}
+
+                    <tr>
+
+                        <td class="url-cell">
+                            {{ check.url }}
+                        </td>
+
+                        <td>
+                            <span class="score">
+                                {{ check.score }} / 100
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <span class="result-badge
+                                {% if check.result == 'Safe' %}
+                                    safe
+                                {% elif check.result == 'Suspicious' %}
+                                    suspicious
+                                {% else %}
+                                    phishing
+                                {% endif %}
+                            ">
+                                {{ check.result }}
+                            </span>
+
+                        </td>
+
+                        <td class="date-cell">
+                            {{ check.checked_at|date:"d M Y, h:i A" }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- MOBILE CARDS -->
+
+        <div class="mobile-history">
+
+            {% for check in checks %}
+
+            <div class="history-card">
+
+                <div class="history-card-top">
+
+                    <div class="history-number">
+                        {{ forloop.counter }}
+                    </div>
+
+                    <span class="result-badge
+                        {% if check.result == 'Safe' %}
+                            safe
+                        {% elif check.result == 'Suspicious' %}
+                            suspicious
+                        {% else %}
+                            phishing
+                        {% endif %}
+                    ">
+                        {{ check.result }}
+                    </span>
+
+                </div>
+
+
+                <div class="mobile-url">
+
+                    <div class="mobile-url-label">
+                        Website URL
+                    </div>
+
+                    <div class="mobile-url-value">
+                        {{ check.url }}
+                    </div>
+
+                </div>
+
+
+                <div class="mobile-info">
+
+                    <div class="mobile-info-box">
+
+                        <span class="mobile-info-label">
+                            Risk Score
+                        </span>
+
+                        <span class="mobile-info-value">
+                            {{ check.score }} / 100
+                        </span>
+
+                    </div>
+
+
+                    <div class="mobile-info-box">
+
+                        <span class="mobile-info-label">
+                            Checked
+                        </span>
+
+                        <span class="mobile-info-value">
+                            {{ check.checked_at|date:"d M Y" }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-history">
+
+            <div class="empty-icon"></div>
+
+            <h2>No History Yet</h2>
+
+            <p>
+                Your website checks will appear here after you analyze a URL.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
