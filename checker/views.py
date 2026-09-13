@@ -21,13 +21,14 @@ def home(request):
         score, label, reasons, age_text, registration_date = detect_phishing(url)
 
         result = {
-            "url": url,
-            "score": score,
-            "label": label,
-            "reasons": reasons,
-            "age": age_text,
-            "registration_date": registration_date,
-        }
+    "url": url,
+    "score": score,
+    "label": label,
+    "reasons": reasons,
+    "age": age_text,
+    "registration_date": registration_date,
+    "preview_url": url,
+}
 
         # Save the result in database
         URLCheck.objects.create(
