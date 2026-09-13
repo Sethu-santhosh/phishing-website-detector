@@ -1,8 +1,10 @@
 import re
 import json
+
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+
 from datetime import datetime, timezone
 
 
@@ -11,7 +13,9 @@ from datetime import datetime, timezone
 # =========================================================
 
 def get_domain(url):
-    """Extract domain from URL."""
+    """
+    Extract the domain name from the submitted URL.
+    """
 
     try:
         parsed = urlparse(url)
@@ -21,11 +25,11 @@ def get_domain(url):
         if not domain:
             return ""
 
-        # Remove username/password
+        # Remove username/password if present
         if "@" in domain:
             domain = domain.split("@")[-1]
 
-        # Remove port
+        # Remove port number
         domain = domain.split(":")[0]
 
         return domain
@@ -39,9 +43,11 @@ def get_domain(url):
 # =========================================================
 
 def request_rdap(domain, server):
+    """
+    Request domain information from an RDAP server.
+    """
 
     try:
-
         api_url = f"{server.rstrip('/')}/domain/{domain}"
 
         request = Request(
@@ -64,11 +70,9 @@ def request_rdap(domain, server):
         ValueError,
         json.JSONDecodeError
     ):
-
         return None
 
     except Exception:
-
         return None
 
 
@@ -77,6 +81,10 @@ def request_rdap(domain, server):
 # =========================================================
 
 def find_registration_date(data):
+    """
+    Find the original domain registration date
+    from RDAP response.
+    """
 
     if not data:
         return None
@@ -85,14 +93,19 @@ def find_registration_date(data):
 
     for event in events:
 
-        action = event.get("eventAction", "").lower()
+        action = event.get(
+            "eventAction",
+            ""
+        ).lower()
 
         if action in [
             "registration",
             "registered"
         ]:
 
-            date = event.get("eventDate")
+            date = event.get(
+                "eventDate"
+            )
 
             if date:
                 return date
@@ -105,22 +118,36 @@ def find_registration_date(data):
 # =========================================================
 
 def get_website_age(url):
+    """
+    Find the domain registration date and calculate
+    how old the website/domain is.
+
+    Primary method:
+        rdap.org
+
+    Fallback method:
+        rdap.net
+
+    If both fail:
+        return Unavailable
+    """
 
     domain = get_domain(url)
 
     if not domain:
-
         return "Unknown", None, None
 
 
     # -----------------------------------------------------
-    # PRIMARY RDAP SERVER
+    # RDAP SERVERS
     # -----------------------------------------------------
 
     servers = [
 
+        # Primary
         "https://rdap.org",
 
+        # Fallback
         "https://www.rdap.net"
 
     ]
@@ -130,7 +157,7 @@ def get_website_age(url):
 
 
     # -----------------------------------------------------
-    # TRY SERVERS ONE BY ONE
+    # TRY EACH SERVER
     # -----------------------------------------------------
 
     for server in servers:
@@ -140,26 +167,29 @@ def get_website_age(url):
             server
         )
 
-        registration_date = find_registration_date(
-            data
+        registration_date = (
+            find_registration_date(data)
         )
 
         if registration_date:
-
             break
 
 
     # -----------------------------------------------------
-    # NO REGISTRATION INFORMATION
+    # REGISTRATION DATE NOT FOUND
     # -----------------------------------------------------
 
     if not registration_date:
 
-        return "Unavailable", None, None
+        return (
+            "Unavailable",
+            None,
+            None
+        )
 
 
     # -----------------------------------------------------
-    # CONVERT DATE
+    # CONVERT REGISTRATION DATE
     # -----------------------------------------------------
 
     try:
@@ -173,6 +203,7 @@ def get_website_age(url):
             clean_date
         )
 
+        # If timezone information is missing
         if created.tzinfo is None:
 
             created = created.replace(
@@ -188,14 +219,17 @@ def get_website_age(url):
             (now - created).days
         )
 
-
     except Exception:
 
-        return "Unavailable", None, None
+        return (
+            "Unavailable",
+            None,
+            None
+        )
 
 
     # -----------------------------------------------------
-    # FORMAT AGE
+    # FORMAT WEBSITE AGE
     # -----------------------------------------------------
 
     if age_days < 30:
@@ -207,25 +241,37 @@ def get_website_age(url):
 
         months = age_days // 30
 
-        age_text = f"{months} month(s)"
+        age_text = (
+            f"{months} month(s)"
+        )
 
 
     else:
 
         years = age_days // 365
 
-        remaining_days = age_days % 365
+        remaining_days = (
+            age_days % 365
+        )
 
-        age_text = f"{years} year(s)"
+        age_text = (
+            f"{years} year(s)"
+        )
 
         if remaining_days >= 30:
 
-            remaining_months = remaining_days // 30
+            remaining_months = (
+                remaining_days // 30
+            )
 
             age_text += (
                 f", {remaining_months} month(s)"
             )
 
+
+    # -----------------------------------------------------
+    # DISPLAY REGISTRATION DATE
+    # -----------------------------------------------------
 
     formatted_date = created.strftime(
         "%d %B %Y"
@@ -249,15 +295,16 @@ def detect_phishing(url):
 
     reasons = []
 
-
     url_lower = url.lower()
 
 
     # =====================================================
-    # HTTPS
+    # HTTPS CHECK
     # =====================================================
 
-    if not url_lower.startswith("https://"):
+    if not url_lower.startswith(
+        "https://"
+    ):
 
         score += 20
 
@@ -267,7 +314,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # IP ADDRESS
+    # IP ADDRESS CHECK
     # =====================================================
 
     try:
@@ -297,7 +344,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # @ SYMBOL
+    # @ SYMBOL CHECK
     # =====================================================
 
     if "@" in url:
@@ -310,7 +357,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # LONG URL
+    # LONG URL CHECK
     # =====================================================
 
     if len(url) > 100:
@@ -323,7 +370,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # MANY HYPHENS
+    # MANY HYPHENS CHECK
     # =====================================================
 
     if url.count("-") >= 3:
@@ -336,7 +383,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # URL SHORTENERS
+    # URL SHORTENER CHECK
     # =====================================================
 
     shorteners = [
@@ -366,7 +413,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # SUSPICIOUS WORDS
+    # SUSPICIOUS KEYWORD CHECK
     # =====================================================
 
     suspicious_words = [
@@ -417,7 +464,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # WEBSITE AGE
+    # WEBSITE AGE CHECK
     # =====================================================
 
     age_text, age_days, registration_date = (
@@ -425,7 +472,10 @@ def detect_phishing(url):
     )
 
 
-    # Very new domain
+    # -----------------------------------------------------
+    # VERY NEW DOMAIN
+    # -----------------------------------------------------
+
     if age_days is not None:
 
         if age_days <= 30:
@@ -437,6 +487,10 @@ def detect_phishing(url):
             )
 
 
+        # -------------------------------------------------
+        # RELATIVELY NEW DOMAIN
+        # -------------------------------------------------
+
         elif age_days <= 90:
 
             score += 10
@@ -447,7 +501,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # LIMIT SCORE
+    # LIMIT SCORE TO 100
     # =====================================================
 
     score = min(
@@ -457,7 +511,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # RESULT
+    # DETERMINE RESULT
     # =====================================================
 
     if score >= 50:
@@ -476,7 +530,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # NO REASONS
+    # NO PHISHING INDICATORS
     # =====================================================
 
     if not reasons:
@@ -487,7 +541,7 @@ def detect_phishing(url):
 
 
     # =====================================================
-    # RETURN
+    # RETURN ALL RESULTS
     # =====================================================
 
     return (
