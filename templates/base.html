@@ -1,706 +1,864 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>PhishGuard</title>
-
-<style>
-
-/* ==============================
-   GLOBAL
-================================ */
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
-
-    background:
-        radial-gradient(circle at 10% 15%, rgba(30,130,255,.45), transparent 28%),
-        radial-gradient(circle at 90% 10%, rgba(170,70,255,.40), transparent 30%),
-        radial-gradient(circle at 50% 100%, rgba(0,210,255,.25), transparent 35%),
-        #07152f;
-
-    background-attachment: fixed;
-    overflow-x: hidden;
-}
-
-
-/* ==============================
-   ANIMATED BACKGROUND
-================================ */
-
-body::before,
-body::after {
-    content: "";
-    position: fixed;
-    width: 280px;
-    height: 280px;
-    border-radius: 50%;
-    filter: blur(90px);
-    pointer-events: none;
-    z-index: -1;
-}
-
-body::before {
-    background: rgba(0,170,255,.20);
-    top: 20%;
-    left: -100px;
-    animation: floatOne 8s ease-in-out infinite alternate;
-}
-
-body::after {
-    background: rgba(180,60,255,.18);
-    bottom: 5%;
-    right: -100px;
-    animation: floatTwo 10s ease-in-out infinite alternate;
-}
-
-@keyframes floatOne {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(100px);
-    }
-}
-
-@keyframes floatTwo {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-100px);
-    }
-}
 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/* ==============================
-   TOP NAVBAR
-================================ */
+    <title>PhishGuard</title>
 
-.top-nav {
-    position: sticky;
-    top: 15px;
-    z-index: 1000;
+    <style>
 
-    width: calc(100% - 30px);
-    margin: 15px auto;
+        * {
+            box-sizing: border-box;
+        }
 
-    min-height: 68px;
-    padding: 12px 22px;
+        html {
+            scroll-behavior: smooth;
+        }
 
-    display: flex;
-    align-items: center;
-    gap: 15px;
+        body {
+            margin: 0;
+            min-height: 100vh;
 
-    border-radius: 22px;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
 
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.25);
+            color: #ffffff;
 
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+            overflow-x: hidden;
 
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.25),
-        inset 0 1px rgba(255,255,255,.20);
-}
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(0, 190, 255, .28),
+                    transparent 30%
+                ),
 
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(125, 70, 255, .30),
+                    transparent 30%
+                ),
 
-/* LOGO */
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(0, 220, 255, .15),
+                    transparent 35%
+                ),
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 9px;
+                #040a1b;
+        }
 
-    font-size: 23px;
-    font-weight: bold;
 
-    margin-right: auto;
-}
+        /* ========================================
+           ANIMATED BACKGROUND
+        ======================================== */
 
-.logo-icon {
-    font-size: 28px;
-}
+        .background-orb {
+            position: fixed;
 
-.logo-blue {
-    color: #42baff;
-}
+            width: 280px;
+            height: 280px;
 
+            border-radius: 50%;
 
-/* NAV LINKS */
+            filter: blur(100px);
 
-.nav-link {
-    color: white;
-    text-decoration: none;
+            pointer-events: none;
 
-    padding: 10px 15px;
-    border-radius: 13px;
+            z-index: -1;
 
-    transition:
-        transform .2s ease,
-        background .25s ease,
-        box-shadow .25s ease;
-}
+            opacity: .40;
+        }
 
-.nav-link:hover {
-    background: rgba(255,255,255,.14);
-    transform: translateY(-2px);
-}
 
-.nav-link:active {
-    transform: scale(.88);
-}
+        .orb-blue {
+            background: #009dff;
 
+            top: 5%;
+            left: -150px;
 
-/* ==============================
-   LAYOUT
-================================ */
+            animation:
+                blueFloat
+                10s
+                ease-in-out
+                infinite
+                alternate;
+        }
 
-.app-layout {
-    width: min(1450px, 94%);
-    margin: 25px auto;
 
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 22px;
-}
+        .orb-purple {
+            background: #8338ff;
 
+            right: -150px;
+            bottom: 5%;
 
-/* ==============================
-   SIDEBAR
-================================ */
+            animation:
+                purpleFloat
+                12s
+                ease-in-out
+                infinite
+                alternate;
+        }
 
-.sidebar {
-    min-height: 600px;
 
-    padding: 18px;
+        @keyframes blueFloat {
 
-    border-radius: 25px;
+            from {
+                transform: translate(0, 0);
+            }
 
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.22);
+            to {
+                transform: translate(120px, 90px);
+            }
 
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+        }
 
-    box-shadow: 0 15px 50px rgba(0,0,0,.20);
-}
 
-.sidebar-title {
-    font-size: 12px;
-    letter-spacing: 2px;
-    opacity: .55;
-    margin: 8px 12px 15px;
-}
+        @keyframes purpleFloat {
 
-.side-link {
-    display: block;
+            from {
+                transform: translate(0, 0);
+            }
 
-    color: white;
-    text-decoration: none;
+            to {
+                transform: translate(-120px, -80px);
+            }
 
-    padding: 14px;
-    margin-bottom: 8px;
+        }
 
-    border-radius: 14px;
 
-    transition:
-        .25s ease;
-}
+        /* ========================================
+           NAVIGATION
+        ======================================== */
 
-.side-link:hover {
-    background: rgba(255,255,255,.14);
-    transform: translateX(5px);
-}
+        .navbar {
 
-.side-link:active {
-    transform: scale(.94);
-}
+            width: min(1200px, 92%);
 
-.side-active {
-    background: linear-gradient(
-        135deg,
-        rgba(50,140,255,.40),
-        rgba(140,70,255,.25)
-    );
+            margin: 20px auto;
 
-    border: 1px solid rgba(100,190,255,.35);
+            padding: 13px 18px;
 
-    box-shadow: 0 5px 25px rgba(30,130,255,.20);
-}
+            display: flex;
 
+            align-items: center;
 
-/* SAFETY CARD */
+            gap: 8px;
 
-.safety-card {
-    margin-top: 35px;
-    padding: 18px;
+            border-radius: 20px;
 
-    border-radius: 18px;
+            border:
+                1px solid
+                rgba(255,255,255,.20);
 
-    background:
-        linear-gradient(
-            135deg,
-            rgba(50,160,255,.20),
-            rgba(150,80,255,.15)
-        );
+            background:
+                rgba(255,255,255,.07);
 
-    border: 1px solid rgba(255,255,255,.18);
-}
+            backdrop-filter:
+                blur(25px);
 
-.safety-icon {
-    font-size: 38px;
-}
+            -webkit-backdrop-filter:
+                blur(25px);
 
-.safety-card h3 {
-    margin: 10px 0 5px;
-}
+            box-shadow:
 
-.safety-card p {
-    font-size: 13px;
-    line-height: 1.5;
-    opacity: .70;
-}
+                0 18px 55px
+                rgba(0,0,0,.28),
 
+                inset 0 1px
+                rgba(255,255,255,.12);
+        }
 
-/* ==============================
-   MAIN CONTENT
-================================ */
 
-.main-content {
-    min-width: 0;
-}
+        /* BRAND */
 
+        .brand {
 
-/* ==============================
-   GLASS CARD
-================================ */
+            margin-right: auto;
 
-.card {
-    padding: 28px;
-    margin-bottom: 20px;
+            display: flex;
 
-    border-radius: 24px;
+            align-items: center;
 
-    background: rgba(255,255,255,.09);
+            gap: 10px;
 
-    border: 1px solid rgba(255,255,255,.24);
+            color: white;
 
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+            text-decoration: none;
 
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.20),
-        inset 0 1px rgba(255,255,255,.15);
-}
+            font-size: 23px;
 
+            font-weight: 700;
+        }
 
-/* ==============================
-   BUTTONS
-================================ */
 
-button {
-    position: relative;
-    overflow: hidden;
+        .brand-name span {
 
-    padding: 13px 23px;
+            color: #39c8ff;
+        }
 
-    border: 0;
-    border-radius: 13px;
 
-    color: white;
-    font-weight: bold;
+        /* BRAND SHIELD */
 
-    background:
-        linear-gradient(
-            135deg,
-            #1687ff,
-            #7655ff
-        );
+        .brand-icon {
 
-    cursor: pointer;
+            width: 38px;
+            height: 38px;
 
-    transition:
-        transform .18s ease,
-        box-shadow .25s ease;
-}
+            display: flex;
 
-button:hover {
-    transform: translateY(-3px);
+            align-items: center;
+            justify-content: center;
 
-    box-shadow:
-        0 10px 30px rgba(50,120,255,.45);
-}
+            border-radius: 11px;
 
-button:active {
-    transform: scale(.88);
-}
+            background:
+                rgba(40,200,255,.12);
 
+            border:
+                1px solid
+                rgba(40,200,255,.30);
 
-/* CLICK RIPPLE */
+            box-shadow:
+                0 0 25px
+                rgba(40,200,255,.12);
+        }
 
-button::after {
-    content: "";
 
-    position: absolute;
+        .brand-icon svg {
 
-    width: 10px;
-    height: 10px;
+            width: 25px;
+            height: 25px;
 
-    left: 50%;
-    top: 50%;
+            fill: none;
 
-    border-radius: 50%;
+            stroke: #42d7ff;
 
-    background: rgba(255,255,255,.55);
+            stroke-width: 1.8;
 
-    transform: translate(-50%,-50%) scale(0);
+            stroke-linecap: round;
 
-    opacity: 0;
-}
+            stroke-linejoin: round;
+        }
 
-button:active::after {
-    animation: ripple .5s ease-out;
-}
 
-@keyframes ripple {
-    0% {
-        transform: translate(-50%,-50%) scale(0);
-        opacity: .7;
-    }
+        /* NAV LINKS */
 
-    100% {
-        transform: translate(-50%,-50%) scale(25);
-        opacity: 0;
-    }
-}
+        .nav-links {
 
+            display: flex;
 
-/* ==============================
-   INPUT
-================================ */
+            align-items: center;
 
-input {
-    width: 100%;
+            gap: 5px;
+        }
 
-    padding: 15px;
 
-    margin: 8px 0 16px;
+        .nav-link {
 
-    border-radius: 13px;
+            display: flex;
 
-    border: 1px solid rgba(255,255,255,.28);
+            align-items: center;
 
-    background: rgba(255,255,255,.10);
+            gap: 8px;
 
-    color: white;
+            padding: 10px 14px;
 
-    outline: none;
+            border-radius: 12px;
 
-    transition: .25s ease;
-}
+            color:
+                rgba(255,255,255,.82);
 
-input::placeholder {
-    color: rgba(255,255,255,.55);
-}
+            text-decoration: none;
 
-input:focus {
-    border-color: #42baff;
+            border:
+                1px solid
+                transparent;
 
-    box-shadow:
-        0 0 25px rgba(50,160,255,.25);
-}
+            transition:
+                .25s ease;
+        }
 
 
-/* ==============================
-   TABLE
-================================ */
+        .nav-link svg {
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+            width: 18px;
+            height: 18px;
 
-td,
-th {
-    padding: 13px;
+            fill: none;
 
-    text-align: left;
+            stroke: currentColor;
 
-    border-bottom:
-        1px solid rgba(255,255,255,.15);
-}
+            stroke-width: 1.8;
 
+            stroke-linecap: round;
 
-/* ==============================
-   RESULT COLORS
-================================ */
+            stroke-linejoin: round;
 
-.safe {
-    border-left: 6px solid #22c55e;
-}
+            transition: .25s ease;
+        }
 
-.suspicious {
-    border-left: 6px solid #f59e0b;
-}
 
-.phishing {
-    border-left: 6px solid #ef4444;
-}
+        .nav-link:hover {
 
+            color: white;
 
-/* ==============================
-   MESSAGES
-================================ */
+            background:
+                rgba(255,255,255,.09);
 
-.message {
-    animation: messageIn .4s ease;
-}
+            border-color:
+                rgba(255,255,255,.13);
 
-@keyframes messageIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
+            transform:
+                translateY(-2px);
+        }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-.errorlist {
-    color: #ff7777;
-}
+        .nav-link:hover svg {
 
+            color: #42d7ff;
 
-/* ==============================
-   FOOTER
-================================ */
+            transform:
+                scale(1.12);
+        }
 
-.footer {
-    width: min(1450px, 94%);
-    margin: 30px auto;
-    padding: 20px;
 
-    text-align: center;
+        .nav-link:active {
 
-    color: rgba(255,255,255,.55);
+            transform:
+                scale(.92);
+        }
 
-    border-top:
-        1px solid rgba(255,255,255,.15);
-}
 
+        /* ========================================
+           MAIN
+        ======================================== */
 
-/* ==============================
-   MOBILE
-================================ */
+        main {
 
-@media(max-width:850px) {
+            width:
+                min(1200px, 92%);
 
-    .app-layout {
-        grid-template-columns: 1fr;
-    }
+            margin:
+                35px auto 60px;
+        }
 
-    .sidebar {
-        min-height: auto;
-    }
 
-    .safety-card {
-        display: none;
-    }
+        /* ========================================
+           GLASS CARD
+        ======================================== */
 
-    .sidebar-title {
-        display: none;
-    }
+        .card {
 
-    .side-link {
-        display: inline-block;
-        margin-right: 5px;
-    }
-}
+            padding: 28px;
 
+            border-radius: 24px;
 
-@media(max-width:600px) {
+            background:
+                rgba(255,255,255,.065);
 
-    .top-nav {
-        padding: 10px 14px;
-        flex-wrap: wrap;
-    }
+            border:
+                1px solid
+                rgba(255,255,255,.17);
 
-    .logo {
-        width: 100%;
-        margin-bottom: 5px;
-    }
+            backdrop-filter:
+                blur(25px);
 
-    .nav-link {
-        padding: 8px 10px;
-        font-size: 13px;
-    }
+            -webkit-backdrop-filter:
+                blur(25px);
 
-    .app-layout {
-        width: 94%;
-    }
+            box-shadow:
 
-    .card {
-        padding: 20px;
-    }
-}
+                0 20px 60px
+                rgba(0,0,0,.25),
 
-</style>
+                inset 0 1px
+                rgba(255,255,255,.10);
+        }
+
+
+        /* ========================================
+           INPUT
+        ======================================== */
+
+        input {
+
+            width: 100%;
+
+            padding:
+                15px 17px;
+
+            border-radius: 14px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.20);
+
+            background:
+                rgba(255,255,255,.075);
+
+            color: white;
+
+            outline: none;
+
+            font-size: 15px;
+
+            transition: .25s ease;
+        }
+
+
+        input::placeholder {
+
+            color:
+                rgba(255,255,255,.42);
+        }
+
+
+        input:focus {
+
+            border-color:
+                #36c8ff;
+
+            box-shadow:
+                0 0 25px
+                rgba(54,200,255,.18);
+        }
+
+
+        /* ========================================
+           BUTTON
+        ======================================== */
+
+        button {
+
+            border: none;
+
+            padding:
+                14px 22px;
+
+            border-radius: 14px;
+
+            color: white;
+
+            font-weight: 700;
+
+            font-size: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0799ff,
+                    #7857ff
+                );
+
+            cursor: pointer;
+
+            position: relative;
+
+            overflow: hidden;
+
+            transition:
+                transform .15s ease,
+                box-shadow .25s ease;
+        }
+
+
+        button:hover {
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 12px 30px
+                rgba(55,130,255,.35);
+        }
+
+
+        button:active {
+
+            transform:
+                scale(.91);
+        }
+
+
+        button:disabled {
+
+            opacity: .65;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        /* ========================================
+           TABLE
+        ======================================== */
+
+        table {
+
+            width: 100%;
+
+            border-collapse:
+                collapse;
+        }
+
+
+        th,
+        td {
+
+            padding: 13px;
+
+            text-align: left;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.12);
+        }
+
+
+        /* ========================================
+           ERROR
+        ======================================== */
+
+        .errorlist {
+
+            color:
+                #ff7272;
+        }
+
+
+        /* ========================================
+           FOOTER
+        ======================================== */
+
+        .footer {
+
+            text-align: center;
+
+            padding: 25px;
+
+            color:
+                rgba(255,255,255,.40);
+
+            font-size: 13px;
+        }
+
+
+        /* ========================================
+           MOBILE
+        ======================================== */
+
+        @media (max-width: 700px) {
+
+            .navbar {
+
+                flex-wrap: wrap;
+
+                padding: 12px 14px;
+            }
+
+
+            .brand {
+
+                width: 100%;
+
+                margin-bottom: 5px;
+            }
+
+
+            .nav-links {
+
+                width: 100%;
+
+                justify-content:
+                    center;
+            }
+
+
+            .nav-link {
+
+                padding:
+                    9px 11px;
+
+                font-size: 13px;
+            }
+
+
+            main {
+
+                width: 94%;
+            }
+
+        }
+
+
+        @media (max-width: 430px) {
+
+            .nav-link span {
+
+                display: none;
+            }
+
+
+            .nav-link {
+
+                padding:
+                    10px 13px;
+            }
+
+
+            .nav-link svg {
+
+                width: 20px;
+                height: 20px;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
 <body>
 
 
-<!-- ==========================
-     TOP NAVIGATION
-=========================== -->
+    <!-- Animated background -->
 
-<nav class="top-nav">
+    <div class="background-orb orb-blue"></div>
 
-    <div class="logo">
-        <span class="logo-icon">🛡️</span>
-        Phish<span class="logo-blue">Guard</span>
-    </div>
+    <div class="background-orb orb-purple"></div>
 
-    <a class="nav-link" href="/">
-        🏠 Home
-    </a>
 
-    <a class="nav-link" href="/history/">
-        📜 History
-    </a>
+    <!-- ========================================
+         ONE NAVIGATION ONLY
+    ======================================== -->
 
-    {% if user.is_authenticated %}
+    <nav class="navbar">
 
-        <a class="nav-link" href="/logout/">
-            🚪 Logout
+
+        <!-- BRAND -->
+
+        <a href="/" class="brand">
+
+            <span class="brand-icon">
+
+                <svg viewBox="0 0 24 24">
+
+                    <path
+                        d="M12 3L20 6V11C20 16.5 16.5 20 12 21C7.5 20 4 16.5 4 11V6L12 3Z">
+                    </path>
+
+                    <path
+                        d="M9 12L11 14L15 10">
+                    </path>
+
+                </svg>
+
+            </span>
+
+
+            <span class="brand-name">
+                Phish<span>Guard</span>
+            </span>
+
         </a>
 
-    {% else %}
 
-        <a class="nav-link" href="/login/">
-            🔑 Login
-        </a>
+        <!-- LINKS -->
 
-        <a class="nav-link" href="/register/">
-            👤 Register
-        </a>
-
-    {% endif %}
-
-</nav>
+        <div class="nav-links">
 
 
-<!-- ==========================
-     APP LAYOUT
-=========================== -->
+            <!-- HOME -->
 
-<div class="app-layout">
+            <a href="/" class="nav-link">
+
+                <svg viewBox="0 0 24 24">
+
+                    <path
+                        d="M3 11L12 4L21 11">
+                    </path>
+
+                    <path
+                        d="M5 10V20H19V10">
+                    </path>
+
+                    <path
+                        d="M9 20V14H15V20">
+                    </path>
+
+                </svg>
+
+                <span>Home</span>
+
+            </a>
 
 
-    <!-- SIDEBAR -->
+            <!-- HISTORY -->
 
-    <aside class="sidebar">
+            <a href="/history/" class="nav-link">
 
-        <div class="sidebar-title">
-            PHISHGUARD
+                <svg viewBox="0 0 24 24">
+
+                    <path
+                        d="M5 4H19V20H5Z">
+                    </path>
+
+                    <path
+                        d="M8 8H16">
+                    </path>
+
+                    <path
+                        d="M8 12H16">
+                    </path>
+
+                    <path
+                        d="M8 16H13">
+                    </path>
+
+                </svg>
+
+                <span>History</span>
+
+            </a>
+
+
+            {% if user.is_authenticated %}
+
+
+                <!-- LOGOUT -->
+
+                <a href="/logout/" class="nav-link">
+
+                    <svg viewBox="0 0 24 24">
+
+                        <path
+                            d="M10 5H5V19H10">
+                        </path>
+
+                        <path
+                            d="M14 8L19 12L14 16">
+                        </path>
+
+                        <path
+                            d="M19 12H9">
+                        </path>
+
+                    </svg>
+
+                    <span>Logout</span>
+
+                </a>
+
+
+            {% else %}
+
+
+                <!-- LOGIN -->
+
+                <a href="/login/" class="nav-link">
+
+                    <svg viewBox="0 0 24 24">
+
+                        <circle
+                            cx="12"
+                            cy="8"
+                            r="3">
+                        </circle>
+
+                        <path
+                            d="M5 20C5.8 16.5 8.2 14.5 12 14.5C15.8 14.5 18.2 16.5 19 20">
+                        </path>
+
+                    </svg>
+
+                    <span>Login</span>
+
+                </a>
+
+
+                <!-- REGISTER -->
+
+                <a href="/register/" class="nav-link">
+
+                    <svg viewBox="0 0 24 24">
+
+                        <circle
+                            cx="9"
+                            cy="8"
+                            r="3">
+                        </circle>
+
+                        <path
+                            d="M3 20C3.8 16.5 6 14.5 9 14.5C12 14.5 14.2 16.5 15 20">
+                        </path>
+
+                        <path
+                            d="M17 11V17">
+                        </path>
+
+                        <path
+                            d="M14 14H20">
+                        </path>
+
+                    </svg>
+
+                    <span>Register</span>
+
+                </a>
+
+
+            {% endif %}
+
+
         </div>
 
-        <a class="side-link side-active" href="/">
-            🏠 &nbsp; Home
-        </a>
-
-        <a class="side-link" href="/history/">
-            📜 &nbsp; History
-        </a>
-
-        {% if user.is_authenticated %}
-
-        <a class="side-link" href="/logout/">
-            🚪 &nbsp; Logout
-        </a>
-
-        {% else %}
-
-        <a class="side-link" href="/login/">
-            🔑 &nbsp; Login
-        </a>
-
-        <a class="side-link" href="/register/">
-            👤 &nbsp; Register
-        </a>
-
-        {% endif %}
+    </nav>
 
 
-        <div class="safety-card">
+    <!-- ========================================
+         PAGE CONTENT
+    ======================================== -->
 
-            <div class="safety-icon">
-                🛡️
-            </div>
+    <main>
 
-            <h3>
-                Stay Safe
-            </h3>
-
-            <p>
-                Think before you click.
-                PhishGuard helps identify
-                suspicious website patterns.
-            </p>
-
-        </div>
-
-    </aside>
-
-
-    <!-- MAIN -->
-
-    <main class="main-content">
 
         {% for message in messages %}
 
-            <div class="card message">
+            <div
+                class="card"
+                style="margin-bottom:20px;">
+
                 {{ message }}
+
             </div>
 
         {% endfor %}
 
+
         {% block content %}
+
         {% endblock %}
+
 
     </main>
 
-</div>
 
+    <!-- FOOTER -->
 
-<!-- FOOTER -->
+    <footer class="footer">
 
-<footer class="footer">
+        PhishGuard • Website Security Scanner
 
-    🛡️ <strong>PhishGuard</strong>
-    &nbsp; • &nbsp;
-    Safer Browsing. A Safer You.
-
-</footer>
+    </footer>
 
 
 </body>
+
 </html>
