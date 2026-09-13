@@ -2,133 +2,335 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>PhishGuard</title>
 
 <style>
+
+/* ==============================
+   GLOBAL
+================================ */
+
 * {
     box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
     margin: 0;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
-    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
 
     background:
-        radial-gradient(circle at 10% 20%, #3159a8 0, transparent 30%),
-        radial-gradient(circle at 90% 10%, #7044a8 0, transparent 28%),
-        radial-gradient(circle at 50% 90%, #126b91 0, transparent 30%),
-        #07142d;
+        radial-gradient(circle at 10% 15%, rgba(30,130,255,.45), transparent 28%),
+        radial-gradient(circle at 90% 10%, rgba(170,70,255,.40), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(0,210,255,.25), transparent 35%),
+        #07152f;
 
     background-attachment: fixed;
+    overflow-x: hidden;
 }
 
-/* Glass Navbar */
-nav {
-    margin: 18px;
-    padding: 15px 22px;
+
+/* ==============================
+   ANIMATED BACKGROUND
+================================ */
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: -1;
+}
+
+body::before {
+    background: rgba(0,170,255,.20);
+    top: 20%;
+    left: -100px;
+    animation: floatOne 8s ease-in-out infinite alternate;
+}
+
+body::after {
+    background: rgba(180,60,255,.18);
+    bottom: 5%;
+    right: -100px;
+    animation: floatTwo 10s ease-in-out infinite alternate;
+}
+
+@keyframes floatOne {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100px);
+    }
+}
+
+@keyframes floatTwo {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-100px);
+    }
+}
+
+
+/* ==============================
+   TOP NAVBAR
+================================ */
+
+.top-nav {
+    position: sticky;
+    top: 15px;
+    z-index: 1000;
+
+    width: calc(100% - 30px);
+    margin: 15px auto;
+
+    min-height: 68px;
+    padding: 12px 22px;
 
     display: flex;
     align-items: center;
-    gap: 22px;
-
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 18px;
-
-    background: rgba(255,255,255,.10);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-
-    box-shadow: 0 10px 40px rgba(0,0,0,.25);
-}
-
-.logo {
-    font-size: 22px;
-    font-weight: bold;
-    margin-right: auto;
-}
-
-.logo span {
-    color: #45b8ff;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    padding: 9px 14px;
-    border-radius: 10px;
-
-    transition: .25s ease;
-}
-
-nav a:hover {
-    background: rgba(255,255,255,.16);
-    transform: translateY(-2px);
-}
-
-nav a:active {
-    transform: scale(.92);
-}
-
-/* Main */
-main {
-    width: min(1100px, 92%);
-    margin: 35px auto;
-}
-
-/* General Glass Card */
-.card {
-    padding: 28px;
-    margin-bottom: 20px;
+    gap: 15px;
 
     border-radius: 22px;
 
     background: rgba(255,255,255,.10);
     border: 1px solid rgba(255,255,255,.25);
 
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.25),
+        inset 0 1px rgba(255,255,255,.20);
+}
+
+
+/* LOGO */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    font-size: 23px;
+    font-weight: bold;
+
+    margin-right: auto;
+}
+
+.logo-icon {
+    font-size: 28px;
+}
+
+.logo-blue {
+    color: #42baff;
+}
+
+
+/* NAV LINKS */
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+
+    padding: 10px 15px;
+    border-radius: 13px;
+
+    transition:
+        transform .2s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,.14);
+    transform: translateY(-2px);
+}
+
+.nav-link:active {
+    transform: scale(.88);
+}
+
+
+/* ==============================
+   LAYOUT
+================================ */
+
+.app-layout {
+    width: min(1450px, 94%);
+    margin: 25px auto;
+
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 22px;
+}
+
+
+/* ==============================
+   SIDEBAR
+================================ */
+
+.sidebar {
+    min-height: 600px;
+
+    padding: 18px;
+
+    border-radius: 25px;
+
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.22);
+
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
 
     box-shadow: 0 15px 50px rgba(0,0,0,.20);
 }
 
-/* Inputs */
-input {
-    width: 100%;
-    padding: 15px;
+.sidebar-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: .55;
+    margin: 8px 12px 15px;
+}
 
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.3);
+.side-link {
+    display: block;
 
-    background: rgba(255,255,255,.12);
     color: white;
+    text-decoration: none;
 
-    outline: none;
-    transition: .25s;
+    padding: 14px;
+    margin-bottom: 8px;
+
+    border-radius: 14px;
+
+    transition:
+        .25s ease;
 }
 
-input::placeholder {
-    color: rgba(255,255,255,.6);
+.side-link:hover {
+    background: rgba(255,255,255,.14);
+    transform: translateX(5px);
 }
 
-input:focus {
-    border-color: #42a5ff;
-    box-shadow: 0 0 20px rgba(66,165,255,.25);
+.side-link:active {
+    transform: scale(.94);
 }
 
-/* Buttons */
+.side-active {
+    background: linear-gradient(
+        135deg,
+        rgba(50,140,255,.40),
+        rgba(140,70,255,.25)
+    );
+
+    border: 1px solid rgba(100,190,255,.35);
+
+    box-shadow: 0 5px 25px rgba(30,130,255,.20);
+}
+
+
+/* SAFETY CARD */
+
+.safety-card {
+    margin-top: 35px;
+    padding: 18px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(50,160,255,.20),
+            rgba(150,80,255,.15)
+        );
+
+    border: 1px solid rgba(255,255,255,.18);
+}
+
+.safety-icon {
+    font-size: 38px;
+}
+
+.safety-card h3 {
+    margin: 10px 0 5px;
+}
+
+.safety-card p {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: .70;
+}
+
+
+/* ==============================
+   MAIN CONTENT
+================================ */
+
+.main-content {
+    min-width: 0;
+}
+
+
+/* ==============================
+   GLASS CARD
+================================ */
+
+.card {
+    padding: 28px;
+    margin-bottom: 20px;
+
+    border-radius: 24px;
+
+    background: rgba(255,255,255,.09);
+
+    border: 1px solid rgba(255,255,255,.24);
+
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.20),
+        inset 0 1px rgba(255,255,255,.15);
+}
+
+
+/* ==============================
+   BUTTONS
+================================ */
+
 button {
-    padding: 13px 22px;
+    position: relative;
+    overflow: hidden;
+
+    padding: 13px 23px;
+
     border: 0;
-    border-radius: 12px;
+    border-radius: 13px;
 
     color: white;
     font-weight: bold;
 
-    background: linear-gradient(135deg,#1677ff,#8b5cf6);
+    background:
+        linear-gradient(
+            135deg,
+            #1687ff,
+            #7655ff
+        );
 
     cursor: pointer;
 
@@ -139,14 +341,115 @@ button {
 
 button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(80,120,255,.45);
+
+    box-shadow:
+        0 10px 30px rgba(50,120,255,.45);
 }
 
 button:active {
-    transform: scale(.90);
+    transform: scale(.88);
 }
 
-/* Result colors */
+
+/* CLICK RIPPLE */
+
+button::after {
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    left: 50%;
+    top: 50%;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.55);
+
+    transform: translate(-50%,-50%) scale(0);
+
+    opacity: 0;
+}
+
+button:active::after {
+    animation: ripple .5s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: translate(-50%,-50%) scale(0);
+        opacity: .7;
+    }
+
+    100% {
+        transform: translate(-50%,-50%) scale(25);
+        opacity: 0;
+    }
+}
+
+
+/* ==============================
+   INPUT
+================================ */
+
+input {
+    width: 100%;
+
+    padding: 15px;
+
+    margin: 8px 0 16px;
+
+    border-radius: 13px;
+
+    border: 1px solid rgba(255,255,255,.28);
+
+    background: rgba(255,255,255,.10);
+
+    color: white;
+
+    outline: none;
+
+    transition: .25s ease;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,.55);
+}
+
+input:focus {
+    border-color: #42baff;
+
+    box-shadow:
+        0 0 25px rgba(50,160,255,.25);
+}
+
+
+/* ==============================
+   TABLE
+================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td,
+th {
+    padding: 13px;
+
+    text-align: left;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.15);
+}
+
+
+/* ==============================
+   RESULT COLORS
+================================ */
+
 .safe {
     border-left: 6px solid #22c55e;
 }
@@ -159,29 +462,84 @@ button:active {
     border-left: 6px solid #ef4444;
 }
 
-/* Tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
+
+/* ==============================
+   MESSAGES
+================================ */
+
+.message {
+    animation: messageIn .4s ease;
 }
 
-td,
-th {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,.15);
-    text-align: left;
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .errorlist {
-    color: #ff6b6b;
+    color: #ff7777;
 }
 
-/* Mobile */
-@media(max-width:700px) {
 
-    nav {
+/* ==============================
+   FOOTER
+================================ */
+
+.footer {
+    width: min(1450px, 94%);
+    margin: 30px auto;
+    padding: 20px;
+
+    text-align: center;
+
+    color: rgba(255,255,255,.55);
+
+    border-top:
+        1px solid rgba(255,255,255,.15);
+}
+
+
+/* ==============================
+   MOBILE
+================================ */
+
+@media(max-width:850px) {
+
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        min-height: auto;
+    }
+
+    .safety-card {
+        display: none;
+    }
+
+    .sidebar-title {
+        display: none;
+    }
+
+    .side-link {
+        display: inline-block;
+        margin-right: 5px;
+    }
+}
+
+
+@media(max-width:600px) {
+
+    .top-nav {
+        padding: 10px 14px;
         flex-wrap: wrap;
-        gap: 8px;
     }
 
     .logo {
@@ -189,55 +547,160 @@ th {
         margin-bottom: 5px;
     }
 
-    nav a {
+    .nav-link {
         padding: 8px 10px;
+        font-size: 13px;
+    }
+
+    .app-layout {
+        width: 94%;
+    }
+
+    .card {
+        padding: 20px;
     }
 }
-</style>
 
+</style>
 </head>
+
 
 <body>
 
-<nav>
+
+<!-- ==========================
+     TOP NAVIGATION
+=========================== -->
+
+<nav class="top-nav">
 
     <div class="logo">
-        🛡️ Phish<span>Guard</span>
+        <span class="logo-icon">🛡️</span>
+        Phish<span class="logo-blue">Guard</span>
     </div>
 
-    <a href="/">🏠 Home</a>
+    <a class="nav-link" href="/">
+        🏠 Home
+    </a>
 
-    <a href="/history/">📜 History</a>
+    <a class="nav-link" href="/history/">
+        📜 History
+    </a>
 
     {% if user.is_authenticated %}
 
-        <a href="/logout/">🚪 Logout</a>
+        <a class="nav-link" href="/logout/">
+            🚪 Logout
+        </a>
 
     {% else %}
 
-        <a href="/login/">🔑 Login</a>
+        <a class="nav-link" href="/login/">
+            🔑 Login
+        </a>
 
-        <a href="/register/">👤 Register</a>
+        <a class="nav-link" href="/register/">
+            👤 Register
+        </a>
 
     {% endif %}
 
 </nav>
 
 
-<main>
+<!-- ==========================
+     APP LAYOUT
+=========================== -->
 
-    {% for message in messages %}
+<div class="app-layout">
 
-        <div class="card">
-            {{ message }}
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            PHISHGUARD
         </div>
 
-    {% endfor %}
+        <a class="side-link side-active" href="/">
+            🏠 &nbsp; Home
+        </a>
 
-    {% block content %}
-    {% endblock %}
+        <a class="side-link" href="/history/">
+            📜 &nbsp; History
+        </a>
 
-</main>
+        {% if user.is_authenticated %}
+
+        <a class="side-link" href="/logout/">
+            🚪 &nbsp; Logout
+        </a>
+
+        {% else %}
+
+        <a class="side-link" href="/login/">
+            🔑 &nbsp; Login
+        </a>
+
+        <a class="side-link" href="/register/">
+            👤 &nbsp; Register
+        </a>
+
+        {% endif %}
+
+
+        <div class="safety-card">
+
+            <div class="safety-icon">
+                🛡️
+            </div>
+
+            <h3>
+                Stay Safe
+            </h3>
+
+            <p>
+                Think before you click.
+                PhishGuard helps identify
+                suspicious website patterns.
+            </p>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main-content">
+
+        {% for message in messages %}
+
+            <div class="card message">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    🛡️ <strong>PhishGuard</strong>
+    &nbsp; • &nbsp;
+    Safer Browsing. A Safer You.
+
+</footer>
+
 
 </body>
 </html>
