@@ -123,10 +123,13 @@
         from {
             left: -100%;
         }
+
         to {
             left: 140%;
         }
     }
+
+    /* Loading */
 
     .loading {
         display: none;
@@ -150,6 +153,8 @@
         }
     }
 
+    /* Result */
+
     .result-card {
         margin-top: 28px;
         animation: resultAppear 0.55s ease;
@@ -160,6 +165,7 @@
             opacity: 0;
             transform: translateY(20px) scale(0.98);
         }
+
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -229,6 +235,8 @@
         opacity: 0.58;
     }
 
+    /* Detection reasons */
+
     .reasons {
         margin-top: 22px;
     }
@@ -264,11 +272,12 @@
 
     .preview-frame {
         width: 100%;
+        min-height: 220px;
         overflow: hidden;
+        position: relative;
         border-radius: 18px;
         background: rgba(255,255,255,0.04);
         border: 1px solid rgba(255,255,255,0.12);
-        min-height: 220px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -283,11 +292,78 @@
         object-position: top;
     }
 
+    /* Preview loading */
+
+    .preview-loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        background: rgba(10,18,40,0.88);
+        z-index: 2;
+    }
+
+    .preview-loader {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.15);
+        border-top-color: #9bb7ff;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .preview-loading-text {
+        font-size: 13px;
+        opacity: 0.65;
+    }
+
+    /* Preview blocked/error */
+
     .preview-error {
         display: none;
+        width: 100%;
         padding: 55px 20px;
         text-align: center;
-        opacity: 0.6;
+    }
+
+    .preview-error-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 15px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .preview-error-icon::before {
+        content: "!";
+        width: 22px;
+        height: 22px;
+        border: 2px solid rgba(255,255,255,0.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .preview-error h4 {
+        margin: 0 0 8px;
+        font-size: 16px;
+    }
+
+    .preview-error p {
+        max-width: 480px;
+        margin: 0 auto;
+        font-size: 12px;
+        line-height: 1.6;
+        opacity: 0.55;
     }
 
     .preview-note {
@@ -296,6 +372,8 @@
         opacity: 0.5;
         line-height: 1.5;
     }
+
+    /* Security note */
 
     .security-note {
         margin-top: 24px;
@@ -307,6 +385,8 @@
         line-height: 1.6;
         opacity: 0.7;
     }
+
+    /* Features */
 
     .features {
         max-width: 900px;
@@ -392,6 +472,7 @@
         }
 
         .preview-frame {
+            min-height: 180px;
             border-radius: 13px;
         }
 
@@ -405,6 +486,8 @@
     }
 </style>
 
+
+<!-- HERO -->
 
 <section class="hero">
 
@@ -425,6 +508,8 @@
 </section>
 
 
+<!-- URL CHECKER -->
+
 <div class="card checker-card">
 
     <h2>Check Website</h2>
@@ -433,7 +518,11 @@
         Enter a website URL below to analyze it.
     </p>
 
-    <form method="POST" onsubmit="showLoading()" class="url-form">
+    <form
+        method="POST"
+        onsubmit="showLoading()"
+        class="url-form"
+    >
 
         {% csrf_token %}
 
@@ -455,6 +544,8 @@
     {% endif %}
 
 
+    <!-- ANALYSIS LOADING -->
+
     <div id="loading" class="loading">
 
         <div class="loader"></div>
@@ -470,6 +561,8 @@
 </div>
 
 
+<!-- RESULT -->
+
 {% if result %}
 
 <div class="card result-card">
@@ -484,6 +577,8 @@
 
     </div>
 
+
+    <!-- BASIC INFORMATION -->
 
     <div class="result-info">
 
@@ -547,6 +642,8 @@
     </div>
 
 
+    <!-- DETECTION DETAILS -->
+
     {% if result.reasons %}
 
     <div class="reasons">
@@ -570,7 +667,7 @@
     {% endif %}
 
 
-    <!-- WEBSITE SCREENSHOT -->
+    <!-- WEBSITE PREVIEW -->
 
     <div class="website-preview">
 
@@ -578,38 +675,77 @@
 
         <div class="preview-frame">
 
+            <!-- Preview loading screen -->
+
+            <div
+                id="previewLoading"
+                class="preview-loading"
+            >
+
+                <div class="preview-loader"></div>
+
+                <div class="preview-loading-text">
+                    Loading website preview...
+                </div>
+
+            </div>
+
+
+            <!-- Screenshot -->
+
             <img
+                id="websitePreview"
                 src="https://image.thum.io/get/width/1200/crop/700/{{ result.url }}"
                 alt="Website preview"
                 loading="lazy"
                 referrerpolicy="no-referrer"
-                onerror="
-                    this.style.display='none';
-                    this.nextElementSibling.style.display='block';
-                "
+                onload="previewLoaded()"
+                onerror="previewFailed()"
             >
 
-            <div class="preview-error">
 
-                Preview unavailable for this website.
+            <!-- Error / Cloudflare message -->
+
+            <div
+                id="previewError"
+                class="preview-error"
+            >
+
+                <div class="preview-error-icon"></div>
+
+                <h4>
+                    Preview unavailable
+                </h4>
+
+                <p>
+                    This website may be protected by Cloudflare,
+                    bot verification, login protection, or another
+                    security system that prevents the preview service
+                    from displaying the original webpage.
+                </p>
 
             </div>
 
         </div>
 
+
         <p class="preview-note">
-            This is a visual screenshot generated by the preview service.
-            Your Django application does not directly open or execute the submitted website.
+            The preview is generated by a third-party screenshot service.
+            Your Django application does not directly open or execute
+            the submitted website.
         </p>
 
     </div>
 
 
+    <!-- SECURITY NOTE -->
+
     <div class="security-note">
 
         <strong>Security note:</strong>
+
         The phishing detection system uses URL-based analysis.
-        The visual preview is separate from the phishing detection rules.
+        The visual preview is separate from your phishing detection rules.
 
     </div>
 
@@ -617,6 +753,8 @@
 
 {% endif %}
 
+
+<!-- FEATURES -->
 
 <div class="features">
 
@@ -626,7 +764,9 @@
             <span></span>
         </div>
 
-        <h3>URL Analysis</h3>
+        <h3>
+            URL Analysis
+        </h3>
 
         <p>
             Checks suspicious URL patterns and security indicators.
@@ -641,7 +781,9 @@
             <span></span>
         </div>
 
-        <h3>Domain Age</h3>
+        <h3>
+            Domain Age
+        </h3>
 
         <p>
             Checks available domain registration information.
@@ -656,7 +798,9 @@
             <span></span>
         </div>
 
-        <h3>Visual Preview</h3>
+        <h3>
+            Visual Preview
+        </h3>
 
         <p>
             Shows a screenshot of the submitted webpage.
@@ -669,14 +813,57 @@
 
 <script>
 
+/* Main analysis loading */
+
 function showLoading() {
 
     const loading = document.getElementById("loading");
 
     if (loading) {
-
         loading.style.display = "block";
+    }
 
+}
+
+
+/* Preview loaded successfully */
+
+function previewLoaded() {
+
+    const loading =
+        document.getElementById("previewLoading");
+
+    if (loading) {
+        loading.style.display = "none";
+    }
+
+}
+
+
+/* Preview failed */
+
+function previewFailed() {
+
+    const loading =
+        document.getElementById("previewLoading");
+
+    const image =
+        document.getElementById("websitePreview");
+
+    const error =
+        document.getElementById("previewError");
+
+
+    if (loading) {
+        loading.style.display = "none";
+    }
+
+    if (image) {
+        image.style.display = "none";
+    }
+
+    if (error) {
+        error.style.display = "block";
     }
 
 }
