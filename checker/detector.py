@@ -1,379 +1,548 @@
-import re
 import json
-
+import re
+import socket
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
-
-from datetime import datetime, timezone
+from urllib.error import URLError, HTTPError
 
 
-# =========================================================
+# ============================================================
 # DOMAIN EXTRACTION
-# =========================================================
+# ============================================================
 
 def get_domain(url):
     """
-    Extract the domain name from the submitted URL.
+    Extract the hostname/domain from a submitted URL.
     """
 
     try:
+        url = url.strip()
+
+        if not url:
+            return None
+
+        # Add scheme if the user did not enter one
+        if not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", url):
+            url = "http://" + url
+
         parsed = urlparse(url)
 
-        domain = parsed.netloc.lower()
+        domain = parsed.hostname
 
         if not domain:
-            return ""
+            return None
 
-        # Remove username/password if present
-        if "@" in domain:
-            domain = domain.split("@")[-1]
-
-        # Remove port number
-        domain = domain.split(":")[0]
+        domain = domain.lower().strip(".")
 
         return domain
 
     except Exception:
-        return ""
+        return None
 
 
-# =========================================================
+# ============================================================
 # RDAP REQUEST
-# =========================================================
+# ============================================================
 
 def request_rdap(domain, server):
     """
-    Request domain information from an RDAP server.
+    Request RDAP information for a domain.
+
+    Returns:
+        dict     -> RDAP JSON data
+        None     -> if request fails
     """
 
     try:
-        api_url = f"{server.rstrip('/')}/domain/{domain}"
+        url = f"{server.rstrip('/')}/domain/{domain}"
 
         request = Request(
-            api_url,
+            url,
             headers={
-                "User-Agent": "PhishGuard/1.0"
-            }
+                "User-Agent": "PhishGuard/1.0",
+                "Accept": "application/rdap+json, application/json",
+            },
         )
 
-        with urlopen(request, timeout=8) as response:
+        with urlopen(request, timeout=10) as response:
 
-            data = response.read().decode("utf-8")
+            if response.status != 200:
+                return None
 
-            return json.loads(data)
+            raw_data = response.read()
+
+            data = json.loads(
+                raw_data.decode("utf-8")
+            )
+
+            if isinstance(data, dict):
+                return data
 
     except (
         HTTPError,
         URLError,
         TimeoutError,
+        socket.timeout,
+        json.JSONDecodeError,
+        OSError,
         ValueError,
-        json.JSONDecodeError
     ):
+        pass
+
+    except Exception:
+        pass
+
+    return None
+
+
+# ============================================================
+# FIND REGISTRATION DATE
+# ============================================================
+
+def find_registration_date(data):
+    """
+    Find the original domain registration date
+    from an RDAP response.
+
+    RDAP normally stores this in:
+
+        events
+            eventAction = registration
+            eventDate = ...
+
+    Returns:
+        datetime -> registration date
+        None     -> not found
+    """
+
+    if not isinstance(data, dict):
         return None
+
+    # --------------------------------------------------------
+    # First: check the main domain object
+    # --------------------------------------------------------
+
+    events = data.get("events", [])
+
+    if isinstance(events, list):
+
+        for event in events:
+
+            if not isinstance(event, dict):
+                continue
+
+            action = str(
+                event.get("eventAction", "")
+            ).lower().strip()
+
+            if action == "registration":
+
+                date_value = event.get("eventDate")
+
+                if date_value:
+
+                    parsed_date = parse_date(
+                        date_value
+                    )
+
+                    if parsed_date:
+                        return parsed_date
+
+    # --------------------------------------------------------
+    # Some RDAP responses may contain registration events
+    # inside nested entities.
+    # --------------------------------------------------------
+
+    entities = data.get("entities", [])
+
+    if isinstance(entities, list):
+
+        for entity in entities:
+
+            if not isinstance(entity, dict):
+                continue
+
+            entity_events = entity.get(
+                "events",
+                []
+            )
+
+            if not isinstance(
+                entity_events,
+                list
+            ):
+                continue
+
+            for event in entity_events:
+
+                if not isinstance(event, dict):
+                    continue
+
+                action = str(
+                    event.get(
+                        "eventAction",
+                        ""
+                    )
+                ).lower().strip()
+
+                if action == "registration":
+
+                    date_value = event.get(
+                        "eventDate"
+                    )
+
+                    if date_value:
+
+                        parsed_date = parse_date(
+                            date_value
+                        )
+
+                        if parsed_date:
+                            return parsed_date
+
+    return None
+
+
+# ============================================================
+# DATE PARSER
+# ============================================================
+
+def parse_date(date_value):
+    """
+    Convert common RDAP date formats into a datetime.
+    """
+
+    if not date_value:
+        return None
+
+    try:
+
+        date_string = str(
+            date_value
+        ).strip()
+
+        # Handle UTC Z format
+        if date_string.endswith("Z"):
+            date_string = (
+                date_string[:-1] + "+00:00"
+            )
+
+        # ISO 8601
+        parsed = datetime.fromisoformat(
+            date_string
+        )
+
+        # Make timezone-aware if necessary
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(
+                tzinfo=timezone.utc
+            )
+
+        return parsed
+
+    except Exception:
+        pass
+
+    # Try common fallback formats
+    formats = [
+        "%Y-%m-%d",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%SZ",
+    ]
+
+    for fmt in formats:
+
+        try:
+
+            parsed = datetime.strptime(
+                str(date_value),
+                fmt
+            )
+
+            return parsed.replace(
+                tzinfo=timezone.utc
+            )
+
+        except ValueError:
+            continue
+
+    return None
+
+
+# ============================================================
+# CALCULATE WEBSITE AGE
+# ============================================================
+
+def calculate_age(registration_date):
+    """
+    Calculate approximate website/domain age.
+
+    Returns:
+        string such as:
+        '10 years, 4 months'
+        '8 months, 12 days'
+        '18 days'
+    """
+
+    if not registration_date:
+        return None
+
+    try:
+
+        now = datetime.now(timezone.utc)
+
+        if registration_date > now:
+            return None
+
+        total_days = (
+            now - registration_date
+        ).days
+
+        # Very new domain
+        if total_days < 30:
+            return f"{total_days} days"
+
+        # Calculate years/months approximately
+        years = now.year - registration_date.year
+
+        months = now.month - registration_date.month
+
+        if now.day < registration_date.day:
+            months -= 1
+
+        if months < 0:
+            years -= 1
+            months += 12
+
+        # If less than one year
+        if years == 0:
+
+            if months == 0:
+                return f"{total_days} days"
+
+            return f"{months} months"
+
+        # Years only
+        if months == 0:
+            return f"{years} years"
+
+        # Years + months
+        return f"{years} years, {months} months"
 
     except Exception:
         return None
 
 
-# =========================================================
-# FIND REGISTRATION DATE
-# =========================================================
-
-def find_registration_date(data):
-    """
-    Find the original domain registration date
-    from RDAP response.
-    """
-
-    if not data:
-        return None
-
-    events = data.get("events", [])
-
-    for event in events:
-
-        action = event.get(
-            "eventAction",
-            ""
-        ).lower()
-
-        if action in [
-            "registration",
-            "registered"
-        ]:
-
-            date = event.get(
-                "eventDate"
-            )
-
-            if date:
-                return date
-
-    return None
-
-
-# =========================================================
-# WEBSITE AGE
-# =========================================================
+# ============================================================
+# WEBSITE AGE LOOKUP
+# ============================================================
 
 def get_website_age(url):
     """
-    Find the domain registration date and calculate
-    how old the website/domain is.
+    Find domain registration date and calculate website age.
 
-    Primary method:
-        rdap.org
+    Multiple RDAP services are tried so that one unavailable
+    service does not immediately cause the feature to fail.
 
-    Fallback method:
-        rdap.net
+    Returns:
 
-    If both fail:
-        return Unavailable
+        age_text
+        registration_date_text
+        registration_datetime
     """
 
     domain = get_domain(url)
 
     if not domain:
-        return "Unknown", None, None
+        return (
+            "Unavailable",
+            None,
+            None,
+        )
 
+    # --------------------------------------------------------
+    # Do not perform RDAP lookup on an IP address.
+    # --------------------------------------------------------
 
-    # -----------------------------------------------------
-    # RDAP SERVERS
-    # -----------------------------------------------------
+    try:
+        socket.inet_aton(domain)
 
-    servers = [
+        return (
+            "Unavailable",
+            None,
+            None,
+        )
 
-        # Primary
+    except OSError:
+        pass
+
+    # --------------------------------------------------------
+    # RDAP servers
+    # --------------------------------------------------------
+
+    rdap_servers = [
         "https://rdap.org",
-
-        # Fallback
-        "https://www.rdap.net"
-
+        "https://www.rdap.net",
     ]
 
-
-    registration_date = None
-
-
-    # -----------------------------------------------------
-    # TRY EACH SERVER
-    # -----------------------------------------------------
-
-    for server in servers:
+    for server in rdap_servers:
 
         data = request_rdap(
             domain,
             server
         )
 
+        if not data:
+            continue
+
         registration_date = (
             find_registration_date(data)
         )
 
-        if registration_date:
-            break
+        if not registration_date:
+            continue
 
+        age_text = calculate_age(
+            registration_date
+        )
 
-    # -----------------------------------------------------
-    # REGISTRATION DATE NOT FOUND
-    # -----------------------------------------------------
+        if not age_text:
+            continue
 
-    if not registration_date:
+        registration_date_text = (
+            registration_date
+            .astimezone(timezone.utc)
+            .strftime("%Y-%m-%d")
+        )
 
         return (
-            "Unavailable",
-            None,
-            None
+            age_text,
+            registration_date_text,
+            registration_date,
         )
 
-
-    # -----------------------------------------------------
-    # CONVERT REGISTRATION DATE
-    # -----------------------------------------------------
-
-    try:
-
-        clean_date = registration_date.replace(
-            "Z",
-            "+00:00"
-        )
-
-        created = datetime.fromisoformat(
-            clean_date
-        )
-
-        # If timezone information is missing
-        if created.tzinfo is None:
-
-            created = created.replace(
-                tzinfo=timezone.utc
-            )
-
-        now = datetime.now(
-            timezone.utc
-        )
-
-        age_days = max(
-            0,
-            (now - created).days
-        )
-
-    except Exception:
-
-        return (
-            "Unavailable",
-            None,
-            None
-        )
-
-
-    # -----------------------------------------------------
-    # FORMAT WEBSITE AGE
-    # -----------------------------------------------------
-
-    if age_days < 30:
-
-        age_text = f"{age_days} days"
-
-
-    elif age_days < 365:
-
-        months = age_days // 30
-
-        age_text = (
-            f"{months} month(s)"
-        )
-
-
-    else:
-
-        years = age_days // 365
-
-        remaining_days = (
-            age_days % 365
-        )
-
-        age_text = (
-            f"{years} year(s)"
-        )
-
-        if remaining_days >= 30:
-
-            remaining_months = (
-                remaining_days // 30
-            )
-
-            age_text += (
-                f", {remaining_months} month(s)"
-            )
-
-
-    # -----------------------------------------------------
-    # DISPLAY REGISTRATION DATE
-    # -----------------------------------------------------
-
-    formatted_date = created.strftime(
-        "%d %B %Y"
-    )
-
+    # --------------------------------------------------------
+    # No registration information available
+    # --------------------------------------------------------
 
     return (
-        age_text,
-        age_days,
-        formatted_date
+        "Unavailable",
+        None,
+        None,
     )
 
 
-# =========================================================
+# ============================================================
 # PHISHING DETECTOR
-# =========================================================
+# ============================================================
 
 def detect_phishing(url):
+    """
+    Rule-based phishing detection.
+
+    Returns:
+
+        score
+        label
+        reasons
+        age_text
+        registration_date
+    """
 
     score = 0
 
     reasons = []
 
-    url_lower = url.lower()
+    url_lower = url.lower().strip()
 
+    # --------------------------------------------------------
+    # Website age
+    # --------------------------------------------------------
 
-    # =====================================================
-    # HTTPS CHECK
-    # =====================================================
+    age_text, registration_date, registration_datetime = (
+        get_website_age(url)
+    )
 
-    if not url_lower.startswith(
-        "https://"
-    ):
-
-        score += 20
-
-        reasons.append(
-            "Website does not use HTTPS."
-        )
-
-
-    # =====================================================
-    # IP ADDRESS CHECK
-    # =====================================================
+    # --------------------------------------------------------
+    # URL parsing
+    # --------------------------------------------------------
 
     try:
 
-        parsed = urlparse(url)
-
-        hostname = parsed.hostname or ""
-
-        ip_pattern = (
-            r"^\d{1,3}(\.\d{1,3}){3}$"
+        parsed = urlparse(
+            url_lower
+            if "://" in url_lower
+            else "http://" + url_lower
         )
 
-        if re.match(
-            ip_pattern,
-            hostname
-        ):
-
-            score += 30
-
-            reasons.append(
-                "URL uses an IP address instead of a normal domain name."
-            )
+        hostname = parsed.hostname or ""
 
     except Exception:
 
         hostname = ""
 
+    # ========================================================
+    # RULE 1 - HTTP instead of HTTPS
+    # ========================================================
 
-    # =====================================================
-    # @ SYMBOL CHECK
-    # =====================================================
+    if url_lower.startswith("http://"):
+
+        score += 10
+
+        reasons.append(
+            "Website does not use HTTPS."
+        )
+
+    # ========================================================
+    # RULE 2 - IP ADDRESS
+    # ========================================================
+
+    if hostname:
+
+        try:
+
+            socket.inet_aton(hostname)
+
+            score += 25
+
+            reasons.append(
+                "Website uses an IP address instead of a normal domain name."
+            )
+
+        except OSError:
+            pass
+
+    # ========================================================
+    # RULE 3 - @ SYMBOL
+    # ========================================================
 
     if "@" in url:
 
-        score += 25
+        score += 20
 
         reasons.append(
             "URL contains an @ symbol, which can hide the real destination."
         )
 
-
-    # =====================================================
-    # LONG URL CHECK
-    # =====================================================
+    # ========================================================
+    # RULE 4 - VERY LONG URL
+    # ========================================================
 
     if len(url) > 100:
 
-        score += 15
+        score += 10
 
         reasons.append(
             "URL is unusually long."
         )
 
+    # ========================================================
+    # RULE 5 - MULTIPLE HYPHENS
+    # ========================================================
 
-    # =====================================================
-    # MANY HYPHENS CHECK
-    # =====================================================
-
-    if url.count("-") >= 3:
+    if hostname.count("-") >= 3:
 
         score += 10
 
@@ -381,173 +550,189 @@ def detect_phishing(url):
             "Domain contains many hyphens."
         )
 
-
-    # =====================================================
-    # URL SHORTENER CHECK
-    # =====================================================
+    # ========================================================
+    # RULE 6 - URL SHORTENERS
+    # ========================================================
 
     shorteners = [
-
         "bit.ly",
         "tinyurl.com",
         "t.co",
         "goo.gl",
-        "is.gd",
-        "cutt.ly",
         "ow.ly",
-        "buff.ly"
-
+        "is.gd",
+        "buff.ly",
+        "cutt.ly",
+        "shorturl.at",
+        "rebrand.ly",
     ]
 
+    if hostname in shorteners:
 
-    if any(
-        shortener in url_lower
-        for shortener in shorteners
-    ):
-
-        score += 20
+        score += 15
 
         reasons.append(
-            "URL uses a URL-shortening service."
+            "URL uses a URL shortening service."
         )
 
+    # ========================================================
+    # RULE 7 - SENSITIVE ACTION WORDS
+    # ========================================================
 
-    # =====================================================
-    # SUSPICIOUS KEYWORD CHECK
-    # =====================================================
-
-    suspicious_words = [
-
+    sensitive_words = [
         "login",
         "signin",
         "verify",
         "verification",
-        "secure",
         "account",
-        "update",
-        "confirm",
         "password",
+        "update",
+        "secure",
+        "security",
+        "confirm",
+        "confirmation",
         "bank",
-        "wallet",
         "payment",
-        "bonus",
-        "free",
-        "gift",
-        "claim"
-
+        "wallet",
     ]
 
+    found_sensitive = []
 
-    found_words = []
-
-
-    for word in suspicious_words:
+    for word in sensitive_words:
 
         if word in url_lower:
+            found_sensitive.append(word)
 
-            found_words.append(
-                word
-            )
-
-
-    if found_words:
+    if found_sensitive:
 
         score += min(
-            len(found_words) * 5,
+            len(found_sensitive) * 5,
             20
         )
 
         reasons.append(
-            "URL contains suspicious keywords: "
-            + ", ".join(found_words)
+            "URL contains sensitive account or verification-related words."
         )
 
+    # ========================================================
+    # RULE 8 - SUSPICIOUS LURE WORDS
+    # ========================================================
 
-    # =====================================================
-    # WEBSITE AGE CHECK
-    # =====================================================
+    lure_words = [
+        "free",
+        "winner",
+        "winning",
+        "prize",
+        "bonus",
+        "gift",
+        "offer",
+        "urgent",
+        "limited",
+        "claim",
+        "reward",
+        "click",
+    ]
 
-    age_text, age_days, registration_date = (
-        get_website_age(url)
-    )
+    found_lures = []
 
+    for word in lure_words:
 
-    # -----------------------------------------------------
-    # VERY NEW DOMAIN
-    # -----------------------------------------------------
+        if word in url_lower:
+            found_lures.append(word)
 
-    if age_days is not None:
+    if found_lures:
 
-        if age_days <= 30:
+        score += min(
+            len(found_lures) * 5,
+            15
+        )
 
-            score += 20
+        reasons.append(
+            "URL contains words commonly used in suspicious or misleading offers."
+        )
 
-            reasons.append(
-                "Domain is very new (registered within the last 30 days)."
-            )
+    # ========================================================
+    # RULE 9 - NEW DOMAIN
+    # ========================================================
 
+    if registration_datetime:
 
-        # -------------------------------------------------
-        # RELATIVELY NEW DOMAIN
-        # -------------------------------------------------
+        try:
 
-        elif age_days <= 90:
+            now = datetime.now(timezone.utc)
 
-            score += 10
+            domain_age_days = (
+                now - registration_datetime
+            ).days
 
-            reasons.append(
-                "Domain is relatively new (less than 90 days old)."
-            )
+            if domain_age_days <= 30:
 
+                score += 20
 
-    # =====================================================
-    # LIMIT SCORE TO 100
-    # =====================================================
+                reasons.append(
+                    f"Domain is very new ({age_text} old)."
+                )
+
+            elif domain_age_days <= 90:
+
+                score += 10
+
+                reasons.append(
+                    f"Domain is relatively new ({age_text} old)."
+                )
+
+            else:
+
+                reasons.append(
+                    f"Domain age: {age_text}."
+                )
+
+        except Exception:
+            pass
+
+    # ========================================================
+    # KEEP SCORE BETWEEN 0 AND 100
+    # ========================================================
 
     score = min(
-        score,
+        max(score, 0),
         100
     )
 
-
-    # =====================================================
-    # DETERMINE RESULT
-    # =====================================================
+    # ========================================================
+    # RESULT LABEL
+    # ========================================================
 
     if score >= 50:
 
         label = "Phishing"
 
-
     elif score >= 25:
 
         label = "Suspicious"
-
 
     else:
 
         label = "Safe"
 
-
-    # =====================================================
-    # NO PHISHING INDICATORS
-    # =====================================================
+    # ========================================================
+    # DEFAULT REASON
+    # ========================================================
 
     if not reasons:
 
         reasons.append(
-            "No common phishing indicators were detected."
+            "No major phishing indicators were detected."
         )
 
-
-    # =====================================================
-    # RETURN ALL RESULTS
-    # =====================================================
+    # ========================================================
+    # RETURN FIVE VALUES
+    # ========================================================
 
     return (
         score,
         label,
         reasons,
         age_text,
-        registration_date
+        registration_date,
     )
