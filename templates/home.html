@@ -1,426 +1,1546 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 
+
 <style>
-/* HERO */
-.scan-hero {
-    padding: 35px;
-    border-radius: 28px;
 
-    background: linear-gradient(
-        135deg,
-        rgba(255,255,255,.13),
-        rgba(255,255,255,.05)
-    );
 
-    border: 1px solid rgba(255,255,255,.25);
-    backdrop-filter: blur(25px);
+/* ==========================================
+   HERO SCANNER
+========================================== */
 
-    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+.scanner-hero {
+
+    padding:
+        55px 35px 45px;
+
+    border-radius:
+        30px;
+
+    text-align:
+        center;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.10),
+            rgba(255,255,255,.035)
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.20);
+
+    backdrop-filter:
+        blur(30px);
+
+    -webkit-backdrop-filter:
+        blur(30px);
+
+    box-shadow:
+
+        0 30px 80px
+        rgba(0,0,0,.30),
+
+        inset 0 1px
+        rgba(255,255,255,.14);
+
+    animation:
+        heroAppear
+        .7s
+        ease;
 }
 
-.scan-hero h1 {
-    font-size: 42px;
-    margin: 0 0 10px;
+
+@keyframes heroAppear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
 }
+
+
+/* ==========================================
+   SHIELD
+========================================== */
+
+.main-shield {
+
+    width:
+        90px;
+
+    height:
+        90px;
+
+    margin:
+        auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(30,190,255,.10);
+
+    border:
+        1px solid
+        rgba(60,210,255,.30);
+
+    box-shadow:
+
+        0 0 45px
+        rgba(30,190,255,.18);
+
+    animation:
+        shieldFloat
+        3s
+        ease-in-out
+        infinite;
+}
+
+
+.main-shield svg {
+
+    width:
+        52px;
+
+    height:
+        52px;
+
+    fill:
+        none;
+
+    stroke:
+        #40d8ff;
+
+    stroke-width:
+        1.5;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+
+@keyframes shieldFloat {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(-8px);
+
+    }
+
+}
+
+
+/* ==========================================
+   TITLE
+========================================== */
+
+.scanner-hero h1 {
+
+    margin:
+        22px 0 10px;
+
+    font-size:
+        clamp(32px, 5vw, 50px);
+
+    line-height:
+        1.15;
+}
+
 
 .gradient-text {
-    background: linear-gradient(90deg,#39c8ff,#8b6cff,#55eaff);
-    -webkit-background-clip: text;
-    color: transparent;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #38d3ff,
+            #8171ff,
+            #c15cff
+        );
+
+    -webkit-background-clip:
+        text;
+
+    background-clip:
+        text;
+
+    color:
+        transparent;
 }
 
-.scan-hero p {
-    opacity: .72;
-    font-size: 16px;
+
+.hero-description {
+
+    max-width:
+        700px;
+
+    margin:
+        0 auto 32px;
+
+    color:
+        rgba(255,255,255,.62);
+
+    line-height:
+        1.6;
+
+    font-size:
+        16px;
 }
 
-/* SCANNER */
-.scanner-box {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    margin-top: 25px;
 
-    border-radius: 18px;
+/* ==========================================
+   URL SCANNER
+========================================== */
 
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.25);
+.scanner {
+
+    max-width:
+        900px;
+
+    margin:
+        auto;
+
+    padding:
+        8px;
+
+    display:
+        flex;
+
+    gap:
+        8px;
+
+    border-radius:
+        19px;
+
+    background:
+        rgba(0,0,0,.15);
+
+    border:
+        1px solid
+        rgba(255,255,255,.18);
+
+    box-shadow:
+        inset 0 1px
+        rgba(255,255,255,.08);
 }
 
-.scanner-box input {
-    margin: 0;
-    flex: 1;
+
+.scanner input {
+
+    flex:
+        1;
+
+    margin:
+        0;
 }
+
 
 .scan-button {
-    min-width: 175px;
+
+    min-width:
+        175px;
 }
 
-/* LOADING */
-.loading-box {
-    display: none;
 
-    margin-top: 20px;
-    padding: 30px;
+/* ==========================================
+   BUTTON LOADING
+========================================== */
 
-    text-align: center;
+.scan-button.loading {
 
-    border-radius: 22px;
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.22);
+    pointer-events:
+        none;
 
-    backdrop-filter: blur(20px);
+    opacity:
+        .75;
 }
 
-.loader {
-    width: 55px;
-    height: 55px;
 
-    margin: auto;
+.mini-spinner {
 
-    border-radius: 50%;
-    border: 5px solid rgba(255,255,255,.15);
-    border-top-color: #40baff;
-    border-right-color: #916cff;
+    display:
+        inline-block;
 
-    animation: spin 1s linear infinite;
+    width:
+        15px;
+
+    height:
+        15px;
+
+    margin-right:
+        7px;
+
+    vertical-align:
+        -2px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.35);
+
+    border-top-color:
+        white;
+
+    border-radius:
+        50%;
+
+    animation:
+        spin
+        .7s
+        linear
+        infinite;
 }
+
 
 @keyframes spin {
+
     to {
-        transform: rotate(360deg);
+
+        transform:
+            rotate(360deg);
+
     }
+
 }
 
-/* FEATURE GRID */
-.feature-grid {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 15px;
-    margin-top: 20px;
+
+/* ==========================================
+   FULL LOADING PANEL
+========================================== */
+
+.loading-panel {
+
+    display:
+        none;
+
+    margin-top:
+        20px;
+
+    padding:
+        30px;
+
+    text-align:
+        center;
+
+    border-radius:
+        24px;
+
+    background:
+        rgba(255,255,255,.065);
+
+    border:
+        1px solid
+        rgba(255,255,255,.17);
+
+    backdrop-filter:
+        blur(22px);
 }
+
+
+.loading-circle {
+
+    width:
+        58px;
+
+    height:
+        58px;
+
+    margin:
+        0 auto 15px;
+
+    border-radius:
+        50%;
+
+    border:
+        4px solid
+        rgba(255,255,255,.10);
+
+    border-top-color:
+        #36d2ff;
+
+    border-right-color:
+        #805cff;
+
+    animation:
+        spin
+        .9s
+        linear
+        infinite;
+}
+
+
+.loading-panel p {
+
+    color:
+        rgba(255,255,255,.55);
+}
+
+
+/* ==========================================
+   STAT CARDS
+========================================== */
+
+.stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:
+        15px;
+
+    margin-top:
+        20px;
+}
+
+
+.stat-card {
+
+    padding:
+        23px;
+
+    border-radius:
+        21px;
+
+    background:
+        rgba(255,255,255,.065);
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    backdrop-filter:
+        blur(20px);
+
+    transition:
+        .3s ease;
+}
+
+
+.stat-card:hover {
+
+    transform:
+        translateY(-6px);
+
+    background:
+        rgba(255,255,255,.10);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.20);
+}
+
+
+.stat-icon {
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(40,200,255,.10);
+
+    border:
+        1px solid
+        rgba(40,200,255,.20);
+}
+
+
+.stat-icon svg {
+
+    width:
+        27px;
+
+    height:
+        27px;
+
+    fill:
+        none;
+
+    stroke:
+        #42d7ff;
+
+    stroke-width:
+        1.7;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+
+.stat-card h3 {
+
+    margin:
+        15px 0 5px;
+
+    font-size:
+        18px;
+}
+
+
+.stat-card p {
+
+    margin:
+        0;
+
+    color:
+        rgba(255,255,255,.55);
+
+    font-size:
+        14px;
+
+    line-height:
+        1.5;
+}
+
+
+/* ==========================================
+   SECTION
+========================================== */
+
+.section-heading {
+
+    margin:
+        38px 0 16px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        10px;
+
+    font-size:
+        23px;
+}
+
+
+.section-heading svg {
+
+    width:
+        27px;
+
+    height:
+        27px;
+
+    fill:
+        none;
+
+    stroke:
+        #43d6ff;
+
+    stroke-width:
+        1.7;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+
+/* ==========================================
+   SECURITY FEATURES
+========================================== */
+
+.features {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:
+        15px;
+}
+
 
 .feature-card {
-    padding: 22px;
 
-    border-radius: 20px;
+    padding:
+        23px;
 
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.20);
+    border-radius:
+        21px;
 
-    backdrop-filter: blur(20px);
+    background:
+        rgba(255,255,255,.065);
 
-    transition: .3s ease;
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    backdrop-filter:
+        blur(20px);
+
+    transition:
+        .3s ease;
 }
+
 
 .feature-card:hover {
-    transform: translateY(-6px);
-    background: rgba(255,255,255,.13);
+
+    transform:
+        translateY(-7px);
+
+    border-color:
+        rgba(60,210,255,.35);
+
+    box-shadow:
+        0 18px 45px
+        rgba(0,0,0,.22);
 }
+
 
 .feature-icon {
-    font-size: 30px;
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(50,190,255,.10);
+
+    border:
+        1px solid
+        rgba(50,190,255,.18);
 }
+
+
+.feature-icon svg {
+
+    width:
+        26px;
+
+    height:
+        26px;
+
+    fill:
+        none;
+
+    stroke:
+        #42d7ff;
+
+    stroke-width:
+        1.7;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
 
 .feature-card h3 {
-    margin-bottom: 8px;
+
+    margin:
+        14px 0 8px;
 }
+
 
 .feature-card p {
-    margin: 0;
-    opacity: .65;
-    line-height: 1.5;
+
+    margin:
+        0;
+
+    color:
+        rgba(255,255,255,.56);
+
+    line-height:
+        1.55;
+
+    font-size:
+        14px;
 }
 
-/* RESULT */
+
+/* ==========================================
+   RESULT
+========================================== */
+
 .result {
-    margin-top: 20px;
-    padding: 28px;
 
-    border-radius: 23px;
+    margin-top:
+        25px;
 
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.23);
+    padding:
+        30px;
 
-    backdrop-filter: blur(25px);
+    border-radius:
+        25px;
 
-    animation: resultAppear .5s ease;
+    background:
+        rgba(255,255,255,.075);
+
+    border:
+        1px solid
+        rgba(255,255,255,.18);
+
+    backdrop-filter:
+        blur(25px);
+
+    animation:
+        resultAppear
+        .6s
+        ease;
 }
+
 
 @keyframes resultAppear {
+
     from {
-        opacity: 0;
-        transform: translateY(20px) scale(.97);
+
+        opacity:
+            0;
+
+        transform:
+            translateY(20px)
+            scale(.97);
     }
 
     to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
     }
+
 }
 
-.safe-result {
-    border-left: 6px solid #22c55e;
+
+.result.safe {
+
+    border-left:
+        6px solid
+        #22c55e;
 }
 
-.suspicious-result {
-    border-left: 6px solid #f59e0b;
+
+.result.suspicious {
+
+    border-left:
+        6px solid
+        #f59e0b;
 }
 
-.phishing-result {
-    border-left: 6px solid #ef4444;
+
+.result.phishing {
+
+    border-left:
+        6px solid
+        #ef4444;
 }
+
 
 .result-title {
-    font-size: 28px;
+
+    font-size:
+        28px;
+
+    margin-top:
+        0;
 }
 
-.risk-number {
-    font-size: 25px;
-    font-weight: bold;
+
+.result-url {
+
+    color:
+        rgba(255,255,255,.65);
+
+    word-break:
+        break-all;
 }
 
-/* RISK BAR */
+
+.score {
+
+    margin-top:
+        20px;
+
+    font-size:
+        25px;
+
+    font-weight:
+        700;
+}
+
+
+/* ==========================================
+   RISK BAR
+========================================== */
+
 .risk-bar {
-    height: 13px;
-    margin: 15px 0 25px;
 
-    border-radius: 20px;
+    height:
+        14px;
 
-    background: rgba(255,255,255,.12);
-    overflow: hidden;
+    margin:
+        15px 0 25px;
+
+    border-radius:
+        20px;
+
+    overflow:
+        hidden;
+
+    background:
+        rgba(255,255,255,.10);
 }
+
 
 .risk-fill {
-    height: 100%;
 
-    width: {{ result.score|default:0 }}%;
+    height:
+        100%;
 
-    border-radius: 20px;
+    width:
+        {{ result.score|default:0 }}%;
 
-    background: linear-gradient(
-        90deg,
-        #22c55e,
-        #f59e0b,
-        #ef4444
-    );
+    border-radius:
+        20px;
 
-    transition: width 1s ease;
+    background:
+
+        linear-gradient(
+            90deg,
+            #22c55e,
+            #f59e0b,
+            #ef4444
+        );
+
+    transition:
+        width
+        1.2s
+        ease;
 }
 
-/* RESPONSIVE */
-@media(max-width:800px) {
 
-    .feature-grid {
-        grid-template-columns: 1fr;
+.result li {
+
+    margin-bottom:
+        8px;
+
+    color:
+        rgba(255,255,255,.75);
+}
+
+
+.warning {
+
+    margin-top:
+        25px;
+
+    color:
+        rgba(255,255,255,.45);
+
+    font-size:
+        13px;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 800px) {
+
+    .scanner {
+
+        flex-direction:
+            column;
     }
 
-    .scanner-box {
-        flex-direction: column;
-    }
 
     .scan-button {
-        width: 100%;
+
+        width:
+            100%;
+
+        min-height:
+            50px;
     }
 
-    .scan-hero h1 {
-        font-size: 32px;
+
+    .stats {
+
+        grid-template-columns:
+            1fr;
     }
+
+
+    .features {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .scanner-hero {
+
+        padding:
+            42px 20px;
+    }
+
 }
+
+
 </style>
 
 
-<!-- =========================
-     SCANNER HERO
-========================= -->
+<!-- ==========================================
+     MAIN HERO
+========================================== -->
 
-<section class="scan-hero">
+<section class="scanner-hero">
+
+
+    <!-- Shield -->
+
+    <div class="main-shield">
+
+        <svg viewBox="0 0 24 24">
+
+            <path
+                d="M12 3L20 6V11C20 16.5 16.5 20 12 21C7.5 20 4 16.5 4 11V6L12 3Z">
+            </path>
+
+            <path
+                d="M9 12L11 14L15 10">
+            </path>
+
+        </svg>
+
+    </div>
+
+
+    <!-- Heading -->
 
     <h1>
-        🛡️ Welcome to
-        <span class="gradient-text">PhishGuard</span>
+
+        Protect Yourself From
+
+        <span class="gradient-text">
+            Phishing
+        </span>
+
     </h1>
 
-    <p>
-        Detect suspicious websites before they become a threat.
-        Enter a URL below and analyze its security indicators.
+
+    <p class="hero-description">
+
+        Analyze a website URL and identify common phishing
+        indicators before you click, login, or share personal
+        information.
+
     </p>
 
 
-    <form method="post" id="scanForm">
+    <!-- Scanner -->
+
+    <form
+        method="post"
+        id="scanForm">
 
         {% csrf_token %}
 
-        <div class="scanner-box">
+
+        <div class="scanner">
+
 
             {{ form.url }}
+
 
             <button
                 type="submit"
                 class="scan-button"
                 id="scanButton">
 
-                🔍 Check Website
+                <!-- Search icon -->
+
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    style="vertical-align:-4px;margin-right:6px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;">
+
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="7">
+                    </circle>
+
+                    <path
+                        d="M20 20L16 16">
+                    </path>
+
+                </svg>
+
+                Scan Website
 
             </button>
+
 
         </div>
 
     </form>
 
+
 </section>
 
 
-<!-- =========================
-     LOADING ANIMATION
-========================= -->
+<!-- ==========================================
+     LOADING
+========================================== -->
 
-<div class="loading-box" id="loadingBox">
+<div
+    class="loading-panel"
+    id="loadingPanel">
 
-    <div class="loader"></div>
 
-    <h2>🔎 Scanning Website...</h2>
+    <div class="loading-circle"></div>
+
+
+    <h2>
+        Analyzing Website
+    </h2>
+
 
     <p>
-        Analyzing URL security indicators...
+        Checking URL security indicators...
     </p>
 
-</div>
-
-
-<!-- =========================
-     FEATURES
-========================= -->
-
-<div class="feature-grid">
-
-    <div class="feature-card">
-
-        <div class="feature-icon">🔐</div>
-
-        <h3>HTTPS Security</h3>
-
-        <p>
-            Checks whether the URL uses a secure HTTPS connection.
-        </p>
-
-    </div>
-
-
-    <div class="feature-card">
-
-        <div class="feature-icon">🌐</div>
-
-        <h3>Domain Analysis</h3>
-
-        <p>
-            Detects suspicious domain and URL patterns.
-        </p>
-
-    </div>
-
-
-    <div class="feature-card">
-
-        <div class="feature-icon">🎯</div>
-
-        <h3>Risk Detection</h3>
-
-        <p>
-            Calculates a risk score from 0 to 100.
-        </p>
-
-    </div>
-
-
-    <div class="feature-card">
-
-        <div class="feature-icon">🔗</div>
-
-        <h3>URL Analysis</h3>
-
-        <p>
-            Checks URL length, symbols and suspicious patterns.
-        </p>
-
-    </div>
-
-
-    <div class="feature-card">
-
-        <div class="feature-icon">⚡</div>
-
-        <h3>Instant Result</h3>
-
-        <p>
-            Get your security result immediately.
-        </p>
-
-    </div>
-
-
-    <div class="feature-card">
-
-        <div class="feature-icon">📋</div>
-
-        <h3>Detailed Reasons</h3>
-
-        <p>
-            See exactly why the URL received its risk score.
-        </p>
-
-    </div>
 
 </div>
 
 
-<!-- =========================
+<!-- ==========================================
+     QUICK ANALYSIS
+========================================== -->
+
+<div class="stats">
+
+
+    <!-- HTTPS -->
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <rect
+                    x="5"
+                    y="10"
+                    width="14"
+                    height="10"
+                    rx="2">
+                </rect>
+
+                <path
+                    d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            HTTPS Security
+        </h3>
+
+
+        <p>
+            Checks whether the website uses a secure HTTPS connection.
+        </p>
+
+    </div>
+
+
+    <!-- DOMAIN -->
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9">
+                </circle>
+
+                <path
+                    d="M3 12H21">
+                </path>
+
+                <path
+                    d="M12 3C15 6 15 18 12 21">
+                </path>
+
+                <path
+                    d="M12 3C9 6 9 18 12 21">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Domain Analysis
+        </h3>
+
+
+        <p>
+            Looks for suspicious domain and URL patterns.
+        </p>
+
+    </div>
+
+
+    <!-- RISK -->
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M12 3L20 7V12C20 16.5 16.5 19.5 12 21C7.5 19.5 4 16.5 4 12V7L12 3Z">
+                </path>
+
+                <path
+                    d="M12 8V13">
+                </path>
+
+                <circle
+                    cx="12"
+                    cy="16"
+                    r=".8">
+                </circle>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Risk Detection
+        </h3>
+
+
+        <p>
+            Calculates a risk score between 0 and 100.
+        </p>
+
+    </div>
+
+
+</div>
+
+
+<!-- ==========================================
+     SECURITY ANALYSIS
+========================================== -->
+
+<h2 class="section-heading">
+
+    <svg viewBox="0 0 24 24">
+
+        <path
+            d="M12 3L20 6V11C20 16.5 16.5 20 12 21C7.5 20 4 16.5 4 11V6L12 3Z">
+        </path>
+
+        <path
+            d="M9 12L11 14L15 10">
+        </path>
+
+    </svg>
+
+    Security Analysis
+
+</h2>
+
+
+<div class="features">
+
+
+    <!-- HTTPS -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <rect
+                    x="5"
+                    y="10"
+                    width="14"
+                    height="10"
+                    rx="2">
+                </rect>
+
+                <path
+                    d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            HTTPS Check
+        </h3>
+
+
+        <p>
+            Checks whether the website uses a secure HTTPS connection.
+        </p>
+
+    </div>
+
+
+    <!-- DOMAIN -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9">
+                </circle>
+
+                <path
+                    d="M3 12H21">
+                </path>
+
+                <path
+                    d="M12 3C15 6 15 18 12 21">
+                </path>
+
+                <path
+                    d="M12 3C9 6 9 18 12 21">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Domain Analysis
+        </h3>
+
+
+        <p>
+            Looks for suspicious domain and URL patterns.
+        </p>
+
+    </div>
+
+
+    <!-- URL -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M10 13.5L8.5 15C6.8 16.7 4 16.7 2.3 15C.6 13.3 .6 10.5 2.3 8.8L6 5.1C7.7 3.4 10.5 3.4 12.2 5.1">
+                </path>
+
+                <path
+                    d="M14 10.5L15.5 9C17.2 7.3 20 7.3 21.7 9C23.4 10.7 23.4 13.5 21.7 15.2L18 18.9C16.3 20.6 13.5 20.6 11.8 18.9">
+                </path>
+
+                <path
+                    d="M8 16L16 8">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            URL Inspection
+        </h3>
+
+
+        <p>
+            Examines URL length, symbols and suspicious structures.
+        </p>
+
+    </div>
+
+
+    <!-- INSTANT -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M13 2L4 14H11L10 22L20 9H13L13 2Z">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Instant Detection
+        </h3>
+
+
+        <p>
+            Produces a security result immediately after scanning.
+        </p>
+
+    </div>
+
+
+    <!-- SCORE -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <path
+                    d="M4 19V10">
+                </path>
+
+                <path
+                    d="M10 19V5">
+                </path>
+
+                <path
+                    d="M16 19V8">
+                </path>
+
+                <path
+                    d="M22 19V3">
+                </path>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Risk Score
+        </h3>
+
+
+        <p>
+            Calculates a risk score between 0 and 100.
+        </p>
+
+    </div>
+
+
+    <!-- REASONS -->
+
+    <div class="feature-card">
+
+        <div class="feature-icon">
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9">
+                </circle>
+
+                <path
+                    d="M12 8V12">
+                </path>
+
+                <circle
+                    cx="12"
+                    cy="16"
+                    r=".8">
+                </circle>
+
+            </svg>
+
+        </div>
+
+
+        <h3>
+            Reason Analysis
+        </h3>
+
+
+        <p>
+            Shows the indicators that affected the final result.
+        </p>
+
+    </div>
+
+
+</div>
+
+
+<!-- ==========================================
      RESULT
-========================= -->
+========================================== -->
 
 {% if result %}
+
 
 <div class="result
 
 {% if result.label == 'Safe' %}
-safe-result
+
+safe
+
 {% elif result.label == 'Suspicious' %}
-suspicious-result
+
+suspicious
+
 {% else %}
-phishing-result
+
+phishing
+
 {% endif %}">
+
 
     {% if result.label == "Safe" %}
 
         <h2 class="result-title">
-            🟢 Website Looks Safe
+            Website Looks Safe
         </h2>
 
     {% elif result.label == "Suspicious" %}
 
         <h2 class="result-title">
-            🟠 Suspicious Website
+            Suspicious Website
         </h2>
 
     {% else %}
 
         <h2 class="result-title">
-            🔴 Phishing Website Detected
+            Phishing Website Detected
         </h2>
 
     {% endif %}
 
 
-    <p>
-        <strong>Website:</strong>
+    <p class="result-url">
+
+        <strong>
+            URL:
+        </strong>
+
         {{ result.url }}
+
     </p>
 
 
-    <div class="risk-number">
-        Risk Score: {{ result.score }} / 100
+    <div class="score">
+
+        Risk Score:
+        {{ result.score }}
+        / 100
+
     </div>
 
 
@@ -431,51 +1551,117 @@ phishing-result
     </div>
 
 
-    <h3>🔎 Detection Details</h3>
+    <h3>
+        Detection Details
+    </h3>
+
 
     <ul>
 
         {% for r in result.reasons %}
 
-            <li>{{ r }}</li>
+            <li>
+                {{ r }}
+            </li>
 
         {% endfor %}
 
     </ul>
 
 
-    <p>
-        <small>
-            ⚠️ PhishGuard is an educational rule-based
-            screening tool and cannot guarantee website safety.
-        </small>
+    <p class="warning">
+
+        This is an educational rule-based screening tool.
+        A Safe result does not guarantee that a website is completely safe.
+
     </p>
 
+
 </div>
+
 
 {% endif %}
 
 
-<!-- =========================
-     SCAN SCRIPT
-========================= -->
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
 
 <script>
 
-const form = document.getElementById("scanForm");
-const loading = document.getElementById("loadingBox");
-const button = document.getElementById("scanButton");
 
-form.addEventListener("submit", function() {
+const scanForm =
+    document.getElementById("scanForm");
 
-    loading.style.display = "block";
 
-    button.innerHTML = "⏳ Scanning...";
+const scanButton =
+    document.getElementById("scanButton");
 
-    button.disabled = true;
 
-});
+const loadingPanel =
+    document.getElementById("loadingPanel");
+
+
+scanForm.addEventListener(
+    "submit",
+    function () {
+
+
+        if (
+            scanButton.disabled
+        ) {
+
+            return;
+
+        }
+
+
+        /* Show loading panel */
+
+        loadingPanel.style.display =
+            "block";
+
+
+        /* Disable button */
+
+        scanButton.disabled =
+            true;
+
+
+        scanButton.classList.add(
+            "loading"
+        );
+
+
+        /* Change button text */
+
+        scanButton.innerHTML =
+
+            '<span class="mini-spinner"></span>' +
+
+            'Scanning...';
+
+
+        /* Scroll to loading */
+
+        setTimeout(
+            function () {
+
+                loadingPanel.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+            },
+            50
+        );
+
+
+    }
+);
+
 
 </script>
+
 
 {% endblock %}
