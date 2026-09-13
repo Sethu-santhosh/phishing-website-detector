@@ -1,1667 +1,399 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 
-
 <style>
-
-
-/* ==========================================
-   HERO SCANNER
-========================================== */
-
-.scanner-hero {
-
-    padding:
-        55px 35px 45px;
-
-    border-radius:
-        30px;
-
-    text-align:
-        center;
-
-    background:
-
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,.10),
-            rgba(255,255,255,.035)
-        );
-
-    border:
-        1px solid
-        rgba(255,255,255,.20);
-
-    backdrop-filter:
-        blur(30px);
-
-    -webkit-backdrop-filter:
-        blur(30px);
-
-    box-shadow:
-
-        0 30px 80px
-        rgba(0,0,0,.30),
-
-        inset 0 1px
-        rgba(255,255,255,.14);
-
-    animation:
-        heroAppear
-        .7s
-        ease;
-}
-
-
-@keyframes heroAppear {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translateY(20px);
-
+    .hero-card {
+        text-align: center;
+        padding: 45px 30px;
     }
 
-    to {
-
-        opacity: 1;
-
-        transform:
-            translateY(0);
-
+    .hero-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 20px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 32px;
     }
 
-}
-
-
-/* ==========================================
-   SHIELD
-========================================== */
-
-.main-shield {
-
-    width:
-        90px;
-
-    height:
-        90px;
-
-    margin:
-        auto;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        50%;
-
-    background:
-        rgba(30,190,255,.10);
-
-    border:
-        1px solid
-        rgba(60,210,255,.30);
-
-    box-shadow:
-
-        0 0 45px
-        rgba(30,190,255,.18);
-
-    animation:
-        shieldFloat
-        3s
-        ease-in-out
-        infinite;
-}
-
-
-.main-shield svg {
-
-    width:
-        52px;
-
-    height:
-        52px;
-
-    fill:
-        none;
-
-    stroke:
-        #40d8ff;
-
-    stroke-width:
-        1.5;
-
-    stroke-linecap:
-        round;
-
-    stroke-linejoin:
-        round;
-}
-
-
-@keyframes shieldFloat {
-
-    0%,
-    100% {
-
-        transform:
-            translateY(0);
-
+    .hero-card h1 {
+        margin-bottom: 12px;
+        font-size: 34px;
     }
 
-    50% {
-
-        transform:
-            translateY(-8px);
-
+    .hero-card p {
+        opacity: 0.8;
+        margin-bottom: 28px;
     }
 
-}
-
-
-/* ==========================================
-   TITLE
-========================================== */
-
-.scanner-hero h1 {
-
-    margin:
-        22px 0 10px;
-
-    font-size:
-        clamp(32px, 5vw, 50px);
-
-    line-height:
-        1.15;
-}
-
-
-.gradient-text {
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #38d3ff,
-            #8171ff,
-            #c15cff
-        );
-
-    -webkit-background-clip:
-        text;
-
-    background-clip:
-        text;
-
-    color:
-        transparent;
-}
-
-
-.hero-description {
-
-    max-width:
-        700px;
-
-    margin:
-        0 auto 32px;
-
-    color:
-        rgba(255,255,255,.62);
-
-    line-height:
-        1.6;
-
-    font-size:
-        16px;
-}
-
-
-/* ==========================================
-   URL SCANNER
-========================================== */
-
-.scanner {
-
-    max-width:
-        900px;
-
-    margin:
-        auto;
-
-    padding:
-        8px;
-
-    display:
-        flex;
-
-    gap:
-        8px;
-
-    border-radius:
-        19px;
-
-    background:
-        rgba(0,0,0,.15);
-
-    border:
-        1px solid
-        rgba(255,255,255,.18);
-
-    box-shadow:
-        inset 0 1px
-        rgba(255,255,255,.08);
-}
-
-
-.scanner input {
-
-    flex:
-        1;
-
-    margin:
-        0;
-}
-
-
-.scan-button {
-
-    min-width:
-        175px;
-}
-
-
-/* ==========================================
-   BUTTON LOADING
-========================================== */
-
-.scan-button.loading {
-
-    pointer-events:
-        none;
-
-    opacity:
-        .75;
-}
-
-
-.mini-spinner {
-
-    display:
-        inline-block;
-
-    width:
-        15px;
-
-    height:
-        15px;
-
-    margin-right:
-        7px;
-
-    vertical-align:
-        -2px;
-
-    border:
-        2px solid
-        rgba(255,255,255,.35);
-
-    border-top-color:
-        white;
-
-    border-radius:
-        50%;
-
-    animation:
-        spin
-        .7s
-        linear
-        infinite;
-}
-
-
-@keyframes spin {
-
-    to {
-
-        transform:
-            rotate(360deg);
-
+    .check-form {
+        text-align: left;
+        max-width: 700px;
+        margin: auto;
     }
 
-}
-
-
-/* ==========================================
-   FULL LOADING PANEL
-========================================== */
-
-.loading-panel {
-
-    display:
-        none;
-
-    margin-top:
-        20px;
-
-    padding:
-        30px;
-
-    text-align:
-        center;
-
-    border-radius:
-        24px;
-
-    background:
-        rgba(255,255,255,.065);
-
-    border:
-        1px solid
-        rgba(255,255,255,.17);
-
-    backdrop-filter:
-        blur(22px);
-}
-
-
-.loading-circle {
-
-    width:
-        58px;
-
-    height:
-        58px;
-
-    margin:
-        0 auto 15px;
-
-    border-radius:
-        50%;
-
-    border:
-        4px solid
-        rgba(255,255,255,.10);
-
-    border-top-color:
-        #36d2ff;
-
-    border-right-color:
-        #805cff;
-
-    animation:
-        spin
-        .9s
-        linear
-        infinite;
-}
-
-
-.loading-panel p {
-
-    color:
-        rgba(255,255,255,.55);
-}
-
-
-/* ==========================================
-   STAT CARDS
-========================================== */
-
-.stats {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap:
-        15px;
-
-    margin-top:
-        20px;
-}
-
-
-.stat-card {
-
-    padding:
-        23px;
-
-    border-radius:
-        21px;
-
-    background:
-        rgba(255,255,255,.065);
-
-    border:
-        1px solid
-        rgba(255,255,255,.16);
-
-    backdrop-filter:
-        blur(20px);
-
-    transition:
-        .3s ease;
-}
-
-
-.stat-card:hover {
-
-    transform:
-        translateY(-6px);
-
-    background:
-        rgba(255,255,255,.10);
-
-    box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.20);
-}
-
-
-.stat-icon {
-
-    width:
-        48px;
-
-    height:
-        48px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        15px;
-
-    background:
-        rgba(40,200,255,.10);
-
-    border:
-        1px solid
-        rgba(40,200,255,.20);
-}
-
-
-.stat-icon svg {
-
-    width:
-        27px;
-
-    height:
-        27px;
-
-    fill:
-        none;
-
-    stroke:
-        #42d7ff;
-
-    stroke-width:
-        1.7;
-
-    stroke-linecap:
-        round;
-
-    stroke-linejoin:
-        round;
-}
-
-
-.stat-card h3 {
-
-    margin:
-        15px 0 5px;
-
-    font-size:
-        18px;
-}
-
-
-.stat-card p {
-
-    margin:
-        0;
-
-    color:
-        rgba(255,255,255,.55);
-
-    font-size:
-        14px;
-
-    line-height:
-        1.5;
-}
-
-
-/* ==========================================
-   SECTION
-========================================== */
-
-.section-heading {
-
-    margin:
-        38px 0 16px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    font-size:
-        23px;
-}
-
-
-.section-heading svg {
-
-    width:
-        27px;
-
-    height:
-        27px;
-
-    fill:
-        none;
-
-    stroke:
-        #43d6ff;
-
-    stroke-width:
-        1.7;
-
-    stroke-linecap:
-        round;
-
-    stroke-linejoin:
-        round;
-}
-
-
-/* ==========================================
-   SECURITY FEATURES
-========================================== */
-
-.features {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap:
-        15px;
-}
-
-
-.feature-card {
-
-    padding:
-        23px;
-
-    border-radius:
-        21px;
-
-    background:
-        rgba(255,255,255,.065);
-
-    border:
-        1px solid
-        rgba(255,255,255,.16);
-
-    backdrop-filter:
-        blur(20px);
-
-    transition:
-        .3s ease;
-}
-
-
-.feature-card:hover {
-
-    transform:
-        translateY(-7px);
-
-    border-color:
-        rgba(60,210,255,.35);
-
-    box-shadow:
-        0 18px 45px
-        rgba(0,0,0,.22);
-}
-
-
-.feature-icon {
-
-    width:
-        48px;
-
-    height:
-        48px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        15px;
-
-    background:
-        rgba(50,190,255,.10);
-
-    border:
-        1px solid
-        rgba(50,190,255,.18);
-}
-
-
-.feature-icon svg {
-
-    width:
-        26px;
-
-    height:
-        26px;
-
-    fill:
-        none;
-
-    stroke:
-        #42d7ff;
-
-    stroke-width:
-        1.7;
-
-    stroke-linecap:
-        round;
-
-    stroke-linejoin:
-        round;
-}
-
-
-.feature-card h3 {
-
-    margin:
-        14px 0 8px;
-}
-
-
-.feature-card p {
-
-    margin:
-        0;
-
-    color:
-        rgba(255,255,255,.56);
-
-    line-height:
-        1.55;
-
-    font-size:
-        14px;
-}
-
-
-/* ==========================================
-   RESULT
-========================================== */
-
-.result {
-
-    margin-top:
-        25px;
-
-    padding:
-        30px;
-
-    border-radius:
-        25px;
-
-    background:
-        rgba(255,255,255,.075);
-
-    border:
-        1px solid
-        rgba(255,255,255,.18);
-
-    backdrop-filter:
-        blur(25px);
-
-    animation:
-        resultAppear
-        .6s
-        ease;
-}
-
-
-@keyframes resultAppear {
-
-    from {
-
-        opacity:
-            0;
-
-        transform:
-            translateY(20px)
-            scale(.97);
+    .check-form input {
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: inherit;
+        outline: none;
+        font-size: 16px;
     }
 
-    to {
-
-        opacity:
-            1;
-
-        transform:
-            translateY(0)
-            scale(1);
+    .check-form input:focus {
+        border-color: rgba(255, 255, 255, 0.5);
     }
 
-}
-
-
-.result.safe {
-
-    border-left:
-        6px solid
-        #22c55e;
-}
-
-
-.result.suspicious {
-
-    border-left:
-        6px solid
-        #f59e0b;
-}
-
-
-.result.phishing {
-
-    border-left:
-        6px solid
-        #ef4444;
-}
-
-
-.result-title {
-
-    font-size:
-        28px;
-
-    margin-top:
-        0;
-}
-
-
-.result-url {
-
-    color:
-        rgba(255,255,255,.65);
-
-    word-break:
-        break-all;
-}
-
-
-.score {
-
-    margin-top:
-        20px;
-
-    font-size:
-        25px;
-
-    font-weight:
-        700;
-}
-
-
-/* ==========================================
-   RISK BAR
-========================================== */
-
-.risk-bar {
-
-    height:
-        14px;
-
-    margin:
-        15px 0 25px;
-
-    border-radius:
-        20px;
-
-    overflow:
-        hidden;
-
-    background:
-        rgba(255,255,255,.10);
-}
-
-
-.risk-fill {
-
-    height:
-        100%;
-
-    width:
-        {{ result.score|default:0 }}%;
-
-    border-radius:
-        20px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #22c55e,
-            #f59e0b,
-            #ef4444
-        );
-
-    transition:
-        width
-        1.2s
-        ease;
-}
-
-
-.result li {
-
-    margin-bottom:
-        8px;
-
-    color:
-        rgba(255,255,255,.75);
-}
-
-
-.warning {
-
-    margin-top:
-        25px;
-
-    color:
-        rgba(255,255,255,.45);
-
-    font-size:
-        13px;
-}
-
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
-@media (max-width: 800px) {
-
-    .scanner {
-
-        flex-direction:
-            column;
+    .check-button {
+        width: 100%;
+        margin-top: 10px;
+        padding: 15px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
-
-    .scan-button {
-
-        width:
-            100%;
-
-        min-height:
-            50px;
+    .check-button:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
     }
 
-
-    .stats {
-
-        grid-template-columns:
-            1fr;
+    .loading {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
     }
 
-
-    .features {
-
-        grid-template-columns:
-            1fr;
+    .spinner {
+        width: 35px;
+        height: 35px;
+        margin: auto;
+        border: 4px solid rgba(255,255,255,0.2);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
     }
 
-
-    .scanner-hero {
-
-        padding:
-            42px 20px;
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
-}
+    .result-card {
+        margin-top: 25px;
+    }
 
+    .result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
 
+    .result-header h2 {
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        background: rgba(255,255,255,0.12);
+    }
+
+    .result-info {
+        margin-top: 25px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .info-box {
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .info-box h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 15px;
+        opacity: 0.75;
+    }
+
+    .info-value {
+        font-size: 20px;
+        font-weight: bold;
+        word-break: break-word;
+    }
+
+    .age-box {
+        grid-column: span 2;
+    }
+
+    .age-value {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .reasons {
+        margin-top: 25px;
+    }
+
+    .reasons h3 {
+        margin-bottom: 12px;
+    }
+
+    .reasons ul {
+        padding-left: 22px;
+    }
+
+    .reasons li {
+        margin-bottom: 8px;
+    }
+
+    .safe-result {
+        border-left: 5px solid #22c55e;
+    }
+
+    .suspicious-result {
+        border-left: 5px solid #f59e0b;
+    }
+
+    .phishing-result {
+        border-left: 5px solid #ef4444;
+    }
+
+    .disclaimer {
+        margin-top: 20px;
+        opacity: 0.65;
+        font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+        .hero-card {
+            padding: 30px 20px;
+        }
+
+        .hero-card h1 {
+            font-size: 27px;
+        }
+
+        .result-info {
+            grid-template-columns: 1fr;
+        }
+
+        .age-box {
+            grid-column: span 1;
+        }
+    }
 </style>
 
 
-<!-- ==========================================
-     MAIN HERO
-========================================== -->
+<!-- Main checker -->
+<div class="card hero-card">
 
-<section class="scanner-hero">
-
-
-    <!-- Shield -->
-
-    <div class="main-shield">
-
-        <svg viewBox="0 0 24 24">
-
-            <path
-                d="M12 3L20 6V11C20 16.5 16.5 20 12 21C7.5 20 4 16.5 4 11V6L12 3Z">
-            </path>
-
-            <path
-                d="M9 12L11 14L15 10">
-            </path>
-
-        </svg>
-
+    <div class="hero-icon">
+        🛡
     </div>
 
+    <h1>Phishing Website Detector</h1>
 
-    <!-- Heading -->
-
-    <h1>
-
-        Protect Yourself From
-
-        <span class="gradient-text">
-            Phishing
-        </span>
-
-    </h1>
-
-
-    <p class="hero-description">
-
-        Analyze a website URL and identify common phishing
-        indicators before you click, login, or share personal
-        information.
-
+    <p>
+        Check a website URL for common phishing indicators and security risks.
     </p>
 
-
-    <!-- Scanner -->
-
-    <form
-        method="post"
-        id="scanForm">
+    <form method="post" class="check-form" onsubmit="showLoading()">
 
         {% csrf_token %}
 
+        {{ form.as_p }}
 
-        <div class="scanner">
+        <button type="submit" class="check-button">
+            Check Website
+        </button>
 
+        <div class="loading" id="loading">
 
-            {{ form.url }}
+            <div class="spinner"></div>
 
-
-            <button
-                type="submit"
-                class="scan-button"
-                id="scanButton">
-
-                <!-- Search icon -->
-
-                <svg
-                    viewBox="0 0 24 24"
-                    width="18"
-                    height="18"
-                    style="vertical-align:-4px;margin-right:6px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;">
-
-                    <circle
-                        cx="11"
-                        cy="11"
-                        r="7">
-                    </circle>
-
-                    <path
-                        d="M20 20L16 16">
-                    </path>
-
-                </svg>
-
-                Scan Website
-
-            </button>
-
+            <p>
+                Analyzing website...
+            </p>
 
         </div>
 
     </form>
 
-
-</section>
-
-
-<!-- ==========================================
-     LOADING
-========================================== -->
-
-<div
-    class="loading-panel"
-    id="loadingPanel">
-
-
-    <div class="loading-circle"></div>
-
-
-    <h2>
-        Analyzing Website
-    </h2>
-
-
-    <p>
-        Checking URL security indicators...
-    </p>
-
-
 </div>
 
-
-<!-- ==========================================
-     QUICK ANALYSIS
-========================================== -->
-
-<div class="stats">
-
-
-    <!-- HTTPS -->
-
-    <div class="stat-card">
-
-        <div class="stat-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <rect
-                    x="5"
-                    y="10"
-                    width="14"
-                    height="10"
-                    rx="2">
-                </rect>
-
-                <path
-                    d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            HTTPS Security
-        </h3>
-
-
-        <p>
-            Checks whether the website uses a secure HTTPS connection.
-        </p>
-
-    </div>
-
-
-    <!-- DOMAIN -->
-
-    <div class="stat-card">
-
-        <div class="stat-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <circle
-                    cx="12"
-                    cy="12"
-                    r="9">
-                </circle>
-
-                <path
-                    d="M3 12H21">
-                </path>
-
-                <path
-                    d="M12 3C15 6 15 18 12 21">
-                </path>
-
-                <path
-                    d="M12 3C9 6 9 18 12 21">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Domain Analysis
-        </h3>
-
-
-        <p>
-            Looks for suspicious domain and URL patterns.
-        </p>
-
-    </div>
-
-
-    <!-- RISK -->
-
-    <div class="stat-card">
-
-        <div class="stat-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <path
-                    d="M12 3L20 7V12C20 16.5 16.5 19.5 12 21C7.5 19.5 4 16.5 4 12V7L12 3Z">
-                </path>
-
-                <path
-                    d="M12 8V13">
-                </path>
-
-                <circle
-                    cx="12"
-                    cy="16"
-                    r=".8">
-                </circle>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Risk Detection
-        </h3>
-
-
-        <p>
-            Calculates a risk score between 0 and 100.
-        </p>
-
-    </div>
-
-
-</div>
-
-
-<!-- ==========================================
-     SECURITY ANALYSIS
-========================================== -->
-
-<h2 class="section-heading">
-
-    <svg viewBox="0 0 24 24">
-
-        <path
-            d="M12 3L20 6V11C20 16.5 16.5 20 12 21C7.5 20 4 16.5 4 11V6L12 3Z">
-        </path>
-
-        <path
-            d="M9 12L11 14L15 10">
-        </path>
-
-    </svg>
-
-    Security Analysis
-
-</h2>
-
-
-<div class="features">
-
-
-    <!-- HTTPS -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <rect
-                    x="5"
-                    y="10"
-                    width="14"
-                    height="10"
-                    rx="2">
-                </rect>
-
-                <path
-                    d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            HTTPS Check
-        </h3>
-
-
-        <p>
-            Checks whether the website uses a secure HTTPS connection.
-        </p>
-
-    </div>
-
-
-    <!-- DOMAIN -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <circle
-                    cx="12"
-                    cy="12"
-                    r="9">
-                </circle>
-
-                <path
-                    d="M3 12H21">
-                </path>
-
-                <path
-                    d="M12 3C15 6 15 18 12 21">
-                </path>
-
-                <path
-                    d="M12 3C9 6 9 18 12 21">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Domain Analysis
-        </h3>
-
-
-        <p>
-            Looks for suspicious domain and URL patterns.
-        </p>
-
-    </div>
-
-
-    <!-- URL -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <path
-                    d="M10 13.5L8.5 15C6.8 16.7 4 16.7 2.3 15C.6 13.3 .6 10.5 2.3 8.8L6 5.1C7.7 3.4 10.5 3.4 12.2 5.1">
-                </path>
-
-                <path
-                    d="M14 10.5L15.5 9C17.2 7.3 20 7.3 21.7 9C23.4 10.7 23.4 13.5 21.7 15.2L18 18.9C16.3 20.6 13.5 20.6 11.8 18.9">
-                </path>
-
-                <path
-                    d="M8 16L16 8">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            URL Inspection
-        </h3>
-
-
-        <p>
-            Examines URL length, symbols and suspicious structures.
-        </p>
-
-    </div>
-
-
-    <!-- INSTANT -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <path
-                    d="M13 2L4 14H11L10 22L20 9H13L13 2Z">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Instant Detection
-        </h3>
-
-
-        <p>
-            Produces a security result immediately after scanning.
-        </p>
-
-    </div>
-
-
-    <!-- SCORE -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <path
-                    d="M4 19V10">
-                </path>
-
-                <path
-                    d="M10 19V5">
-                </path>
-
-                <path
-                    d="M16 19V8">
-                </path>
-
-                <path
-                    d="M22 19V3">
-                </path>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Risk Score
-        </h3>
-
-
-        <p>
-            Calculates a risk score between 0 and 100.
-        </p>
-
-    </div>
-
-
-    <!-- REASONS -->
-
-    <div class="feature-card">
-
-        <div class="feature-icon">
-
-            <svg viewBox="0 0 24 24">
-
-                <circle
-                    cx="12"
-                    cy="12"
-                    r="9">
-                </circle>
-
-                <path
-                    d="M12 8V12">
-                </path>
-
-                <circle
-                    cx="12"
-                    cy="16"
-                    r=".8">
-                </circle>
-
-            </svg>
-
-        </div>
-
-
-        <h3>
-            Reason Analysis
-        </h3>
-
-
-        <p>
-            Shows the indicators that affected the final result.
-        </p>
-
-    </div>
-
-
-</div>
-
-
-<!-- ==========================================
-     RESULT
-========================================== -->
 
 {% if result %}
 
-
-<div class="result
-
-{% if result.label == 'Safe' %}
-
-safe
-
-{% elif result.label == 'Suspicious' %}
-
-suspicious
-
-{% else %}
-
-phishing
-
-{% endif %}">
-
-
-    {% if result.label == "Safe" %}
-
-        <h2 class="result-title">
-            Website Looks Safe
-        </h2>
-
-    {% elif result.label == "Suspicious" %}
-
-        <h2 class="result-title">
-            Suspicious Website
-        </h2>
-
+<!-- Result -->
+<div class="card result-card
+    {% if result.label == 'Safe' %}
+        safe-result
+    {% elif result.label == 'Suspicious' %}
+        suspicious-result
     {% else %}
+        phishing-result
+    {% endif %}
+">
 
-        <h2 class="result-title">
-            Phishing Website Detected
+    <div class="result-header">
+
+        <h2>
+            Detection Result
         </h2>
 
-    {% endif %}
-
-
-    <p class="result-url">
-
-        <strong>
-            URL:
-        </strong>
-
-        {{ result.url }}
-
-    </p>
-
-
-    <div class="score">
-
-        Risk Score:
-        {{ result.score }}
-        / 100
+        <div class="status-badge">
+            {{ result.label }}
+        </div>
 
     </div>
 
 
-    <div class="risk-bar">
+    <!-- Website information -->
+    <div class="result-info">
 
-        <div class="risk-fill"></div>
+        <!-- URL -->
+        <div class="info-box">
+
+            <h3>
+                Website URL
+            </h3>
+
+            <div class="info-value">
+                {{ result.url }}
+            </div>
+
+        </div>
+
+
+        <!-- Risk Score -->
+        <div class="info-box">
+
+            <h3>
+                Risk Score
+            </h3>
+
+            <div class="info-value">
+                {{ result.score }} / 100
+            </div>
+
+        </div>
+
+
+        <!-- Website Age -->
+        <div class="info-box age-box">
+
+            <h3>
+                Website Age
+            </h3>
+
+            <div class="age-value">
+
+                {% if result.age %}
+                    {{ result.age }}
+                {% else %}
+                    Unavailable
+                {% endif %}
+
+            </div>
+
+
+            {% if result.registration_date %}
+
+                <p>
+                    Registered on:
+                    <strong>{{ result.registration_date }}</strong>
+                </p>
+
+            {% else %}
+
+                <p>
+                    Registration information could not be found.
+                </p>
+
+            {% endif %}
+
+        </div>
 
     </div>
 
 
-    <h3>
-        Detection Details
-    </h3>
+    <!-- Detection reasons -->
+    <div class="reasons">
+
+        <h3>
+            Why this result?
+        </h3>
+
+        {% if result.reasons %}
+
+            <ul>
+
+                {% for reason in result.reasons %}
+
+                    <li>
+                        {{ reason }}
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>
+                No major phishing indicators were detected.
+            </p>
+
+        {% endif %}
+
+    </div>
 
 
-    <ul>
-
-        {% for r in result.reasons %}
-
-            <li>
-                {{ r }}
-            </li>
-
-        {% endfor %}
-
-    </ul>
-
-
-    <p class="warning">
+    <div class="disclaimer">
 
         This is an educational rule-based screening tool.
-        A Safe result does not guarantee that a website is completely safe.
+        It does not visit or execute the submitted website and
+        cannot guarantee that a website is completely safe.
 
-    </p>
-
+    </div>
 
 </div>
-
 
 {% endif %}
 
 
-<!-- ==========================================
-     JAVASCRIPT
-========================================== -->
-
 <script>
 
+function showLoading() {
 
-const scanForm =
-    document.getElementById("scanForm");
+    const loading = document.getElementById("loading");
 
-
-const scanButton =
-    document.getElementById("scanButton");
-
-
-const loadingPanel =
-    document.getElementById("loadingPanel");
-
-
-scanForm.addEventListener(
-    "submit",
-    function () {
-
-
-        if (
-            scanButton.disabled
-        ) {
-
-            return;
-
-        }
-
-
-        /* Show loading panel */
-
-        loadingPanel.style.display =
-            "block";
-
-
-        /* Disable button */
-
-        scanButton.disabled =
-            true;
-
-
-        scanButton.classList.add(
-            "loading"
-        );
-
-
-        /* Change button text */
-
-        scanButton.innerHTML =
-
-            '<span class="mini-spinner"></span>' +
-
-            'Scanning...';
-
-
-        /* Scroll to loading */
-
-        setTimeout(
-            function () {
-
-                loadingPanel.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-
-            },
-            50
-        );
-
-
+    if (loading) {
+        loading.style.display = "block";
     }
-);
 
+}
 
 </script>
-
 
 {% endblock %}
