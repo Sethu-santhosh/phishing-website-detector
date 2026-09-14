@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 25px;
+    }
+
+    .dashboard-header h1 {
+        margin-bottom: 8px;
+    }
+
+    .dashboard-header p {
+        opacity: 0.7;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        padding: 24px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        transition: transform 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-title {
+        font-size: 14px;
+        opacity: 0.7;
+        margin-bottom: 10px;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .dashboard-card {
+        padding: 25px;
+    }
+
+    .dashboard-card h2 {
+        margin-top: 0;
+    }
+
+    .risk-score {
+        font-size: 45px;
+        font-weight: bold;
+        margin: 20px 0 5px;
+    }
+
+    .risk-label {
+        opacity: 0.7;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .recent-table th,
+    .recent-table td {
+        padding: 12px 8px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .recent-table th {
+        opacity: 0.7;
+        font-size: 13px;
+    }
+
+    .url-cell {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .safe-badge {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    .suspicious-badge {
+        background: rgba(245, 158, 11, 0.15);
+    }
+
+    .phishing-badge {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    .empty-message {
+        opacity: 0.65;
+        padding: 20px 0;
+    }
+
+    @media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 550px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .recent-table {
+            font-size: 13px;
+        }
+    }
+</style>
+
+
+<!-- Dashboard heading -->
+
+<div class="dashboard-header">
+
+    <h1>Security Dashboard</h1>
+
+    <p>
+        Overview of your website security scans and detection results.
+    </p>
+
+</div>
+
+
+<!-- Statistics -->
+
+<div class="stats-grid">
+
+    <div class="card stat-card">
+
+        <div class="stat-title">
+            Total Checks
+        </div>
+
+        <div class="stat-number">
+            {{ total_checks }}
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="stat-title">
+            Safe Websites
+        </div>
+
+        <div class="stat-number">
+            {{ safe_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="stat-title">
+            Suspicious
+        </div>
+
+        <div class="stat-number">
+            {{ suspicious_count }}
+        </div>
+
+    </div>
+
+
+    <div class="card stat-card">
+
+        <div class="stat-title">
+            Phishing
+        </div>
+
+        <div class="stat-number">
+            {{ phishing_count }}
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Detailed dashboard -->
+
+<div class="dashboard-grid">
+
+
+    <!-- Risk overview -->
+
+    <div class="card dashboard-card">
+
+        <h2>Risk Overview</h2>
+
+        <p>
+            Your average risk score
+        </p>
+
+        <div class="risk-score">
+            {{ average_score }}
+        </div>
+
+        <div class="risk-label">
+            Average Risk Score
+        </div>
+
+
+        <hr style="margin:25px 0; opacity:0.15;">
+
+
+        <p>
+            Highest risk score detected
+        </p>
+
+        <div class="risk-score" style="font-size:32px;">
+            {{ highest_score }}
+        </div>
+
+    </div>
+
+
+    <!-- Recent scans -->
+
+    <div class="card dashboard-card">
+
+        <h2>Recent Scans</h2>
+
+        {% if recent_checks %}
+
+        <table class="recent-table">
+
+            <thead>
+
+                <tr>
+                    <th>Website</th>
+                    <th>Score</th>
+                    <th>Result</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for check in recent_checks %}
+
+                <tr>
+
+                    <td class="url-cell">
+                        {{ check.url }}
+                    </td>
+
+                    <td>
+                        {{ check.score }}
+                    </td>
+
+                    <td>
+
+                        {% if check.result == "Safe" %}
+
+                            <span class="badge safe-badge">
+                                Safe
+                            </span>
+
+                        {% elif check.result == "Suspicious" %}
+
+                            <span class="badge suspicious-badge">
+                                Suspicious
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge phishing-badge">
+                                Phishing
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+            <p class="empty-message">
+                You haven't checked any websites yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
