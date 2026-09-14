@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Avg
 
 from .forms import URLCheckForm, RegisterForm
 from .models import URLCheck
@@ -21,14 +22,14 @@ def home(request):
         score, label, reasons, age_text, registration_date = detect_phishing(url)
 
         result = {
-    "url": url,
-    "score": score,
-    "label": label,
-    "reasons": reasons,
-    "age": age_text,
-    "registration_date": registration_date,
-    "preview_url": url,
-}
+            "url": url,
+            "score": score,
+            "label": label,
+            "reasons": reasons,
+            "age": age_text,
+            "registration_date": registration_date,
+            "preview_url": url,
+        }
 
         # Save the result in database
         URLCheck.objects.create(
@@ -122,5 +123,69 @@ def history(request):
         "history.html",
         {
             "checks": checks,
+        },
+    )
+
+
+@login_required
+def dashboard(request):
+
+    # All scans made by the logged-in user
+    checks = URLCheck.objects.filter(
+        user=request.user
+    )
+
+    # Total number of scans
+    total_checks = checks.count()
+
+    # Safe websites
+    safe_count = checks.filter(
+        result="Safe"
+    ).count()
+
+    # Suspicious websites
+    suspicious_count = checks.filter(
+        result="Suspicious"
+    ).count()
+
+    # Phishing websites
+    phishing_count = checks.filter(
+        result="Phishing"
+    ).count()
+
+    # Average risk score
+    average_score = checks.aggregate(
+        average=Avg("score")
+    )["average"]
+
+    if average_score is None:
+        average_score = 0
+    else:
+        average_score = round(average_score, 1)
+
+    # Highest risk score
+    highest_score = 0
+
+    if checks.exists():
+        highest_score = max(
+            check.score for check in checks
+        )
+
+    # Recent scans
+    recent_checks = checks.order_by(
+        "-checked_at"
+    )[:5]
+
+    return render(
+        request,
+        "dashboard.html",
+        {
+            "total_checks": total_checks,
+            "safe_count": safe_count,
+            "suspicious_count": suspicious_count,
+            "phishing_count": phishing_count,
+            "average_score": average_score,
+            "highest_score": highest_score,
+            "recent_checks": recent_checks,
         },
     )
