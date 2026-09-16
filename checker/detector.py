@@ -9,6 +9,9 @@ from urllib.error import URLError, HTTPError
 
 import whois
 
+# STEP 2: Domain Intelligence + DNS Analysis
+from .domain_intelligence import get_domain_intelligence
+
 
 # ============================================================
 # DOMAIN EXTRACTION
@@ -395,6 +398,7 @@ def is_ip_address(hostname):
     try:
         socket.inet_aton(hostname)
         return True
+
     except OSError:
         return False
 
@@ -843,6 +847,38 @@ def detect_phishing(url):
         )
 
     # --------------------------------------------------------
+    # STEP 2
+    # DOMAIN INTELLIGENCE + DNS ANALYSIS
+    # --------------------------------------------------------
+
+    try:
+
+        domain_info = get_domain_intelligence(
+            domain
+        )
+
+        # Add DNS risk to total score
+        score += domain_info.get(
+            "dns_risk",
+            0
+        )
+
+        # Add DNS explanations
+        reasons.extend(
+            domain_info.get(
+                "dns_reasons",
+                []
+            )
+        )
+
+    except Exception as error:
+
+        # Do not break the complete detector
+        reasons.append(
+            "Domain intelligence analysis was unavailable."
+        )
+
+    # --------------------------------------------------------
     # HTTP
     # --------------------------------------------------------
 
@@ -1025,7 +1061,9 @@ def detect_phishing(url):
         )
 
     # Remove duplicate reasons
-    reasons = list(dict.fromkeys(reasons))
+    reasons = list(
+        dict.fromkeys(reasons)
+    )
 
     # --------------------------------------------------------
     # RETURN
