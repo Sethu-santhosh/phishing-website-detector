@@ -1,4 +1,8 @@
+import socket
+import dns.resolver
 
+
+def get_domain_intelligence(domain):
 import socket
 import dns.resolver
 
